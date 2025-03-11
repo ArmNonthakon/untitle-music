@@ -400,7 +400,8 @@ fun RankingGroup(topic: String, state: HomeScreenState, isTopArtist: Boolean) {
                                 image = item.image[0].url,
                                 title = item.name,
                                 subTitle = "${"%,d".format(item.followers.total)} Followers",
-                                isFirst = index == 0
+                                isFirst = index == 0,
+                                uri = item.uri
                             )
                         }
                     } else {
@@ -410,7 +411,8 @@ fun RankingGroup(topic: String, state: HomeScreenState, isTopArtist: Boolean) {
                                 image = item.album.images[0].url,
                                 title = item.name,
                                 subTitle = item.artists.joinToString(", ") { it.name },
-                                isFirst = index == 0
+                                isFirst = index == 0,
+                                uri = item.uri
                             )
                         }
                     }
@@ -479,7 +481,7 @@ fun SongBox(track: TrackEntity) {
 }
 
 @Composable
-fun RankingCard(number: Int, image: String, title: String, subTitle: String, isFirst: Boolean) {
+fun RankingCard(number: Int, image: String, title: String, subTitle: String, isFirst: Boolean,uri : String) {
     Box(modifier = Modifier.padding(horizontal = if (isFirst) 0.dp else 10.dp)) {
         Box(
             modifier = Modifier

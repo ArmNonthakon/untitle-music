@@ -62,4 +62,5 @@ dependencies {
     implementation(libs.kotlin.stdlib.jdk7)
 
     implementation(project(":package:core"))
+    implementation(files("C:/Users/peear/Downloads/spotify-app-remote-release-0.8.0.aar"))
 }

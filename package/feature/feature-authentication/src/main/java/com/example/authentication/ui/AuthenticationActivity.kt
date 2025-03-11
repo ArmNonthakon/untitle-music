@@ -16,14 +16,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,7 +30,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.authentication.controller.AuthenticationController
@@ -62,7 +59,7 @@ class AuthenticationActivity : ComponentActivity() {
                         val context = LocalContext.current
                         val configuration = LocalConfiguration.current
                         val widgetScreen = configuration.screenWidthDp.dp
-                        val authenUrl = "https://accounts.spotify.com/en/authorize?client_id=ce98505416dc45cc92e85778734e85a4&response_type=code&redirect_uri=untitledmusic://callback&scope=user-top-read%20user-read-playback-state"
+                        val authenUrl = "https://accounts.spotify.com/en/authorize?client_id=ce98505416dc45cc92e85778734e85a4&response_type=code&redirect_uri=untitledmusic://callback&scope=user-top-read%20user-read-playback-state%20app-remote-control"
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()) {
                             Image(painter = painterResource(id = com.example.core.R.drawable.spotify_logo), contentDescription = "", modifier = Modifier.size(width = 370.dp, height = 300.dp))

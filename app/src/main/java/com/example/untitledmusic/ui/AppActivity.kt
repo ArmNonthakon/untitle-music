@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,13 +41,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
+import com.example.core.R
 import com.example.core.data.model.track.TrackResponse
+import com.example.core.presentation.AppSpotifyAppRemote
 import com.example.feature_home_screen.ui.HomeScreenProvider
 import com.example.untitledmusic.presentation.AppIntent
 import com.example.untitledmusic.presentation.AppStatus
 import com.example.untitledmusic.presentation.AppViewModel
 import com.example.untitledmusic.ui.theme.SpotmusicTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 import java.time.Duration
 
@@ -56,6 +62,7 @@ class AppActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val viewModel: AppViewModel = hiltViewModel()
+
             LaunchedEffect(Unit) {
                 viewModel.sendIntent(AppIntent.GetPlayBackState)
             }
@@ -69,8 +76,13 @@ class AppActivity : ComponentActivity() {
                             MusicBottomAppBar(
                                 state.player.item,
                                 progress = it.toDouble(),
-                                isPlay = state.player.isPlaying
+                                isPlay = state.playerState.isPlaying,
+                                viewModel = viewModel
                             )
+                        }
+                    }else{
+                        BottomAppBar(Modifier.background(Color.Black)){
+                            Box (Modifier.background(Color.Black).fillMaxSize())
                         }
                     }
                 }) { innerPadding ->
@@ -102,7 +114,9 @@ fun MusicBottomAppBar(
     track: TrackResponse? = null,
     progress: Double = 0.0,
     isPlay: Boolean = false,
+    viewModel: AppViewModel
 ) {
+    val scope = rememberCoroutineScope()
     BottomAppBar(Modifier, containerColor = Color.Black) {
         Row(
             Modifier
@@ -110,8 +124,7 @@ fun MusicBottomAppBar(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // ✅ Display Track Image and Info
-            Row {
+            Row (Modifier.weight(5f)){
                 Box(
                     modifier = Modifier
                         .size(55.dp)
@@ -136,42 +149,58 @@ fun MusicBottomAppBar(
                     Text(
                         track?.artists?.joinToString(", ") { it.name } ?: "Artist",
                         color = Color.White,
-                        style = TextStyle(fontSize = 14.sp)
+                        style = TextStyle(fontSize = 12.sp)
                     )
                 }
             }
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(horizontalArrangement = Arrangement.spacedBy(40.dp)) {
-                    Image(
-                        painter = painterResource(id = com.example.core.R.drawable.back),
-                        contentDescription = "back",
-                        modifier = Modifier.size(25.dp)
-                    )
-                    Image(
-                        painter = painterResource(id = com.example.core.R.drawable.play),
-                        contentDescription = "play",
-                        modifier = Modifier
-                            .size(30.dp)
-                    )
-                    Image(
-                        painter = painterResource(id = com.example.core.R.drawable.next),
-                        contentDescription = "next",
-                        modifier = Modifier.size(25.dp)
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-                track?.let {
-                    ProgressBar(progress = progress, duration = it.durationMs, isPlay = isPlay)
+            Row (Modifier.weight(5f)){
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(40.dp)) {
+                        Image(
+                            painter = painterResource(id = R.drawable.back),
+                            contentDescription = "back",
+                            modifier = Modifier
+                                .size(25.dp)
+                                .clickable {
+                                    viewModel.sendIntent(AppIntent.PreviousSong)
+                                }
+                        )
+                        Image(
+                            painter = painterResource(id = if(!isPlay) R.drawable.play else R.drawable.pause),
+                            contentDescription = "play",
+                            modifier = Modifier
+                                .size(30.dp)
+                                .clickable {
+                                    viewModel.sendIntent(AppIntent.ResumePauseSong)
+                                }
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.next),
+                            contentDescription = "next",
+                            modifier = Modifier
+                                .size(25.dp)
+                                .clickable {
+                                    scope.launch {
+                                        viewModel.sendIntent(AppIntent.NextSong)
+                                    }
+                                }
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    track?.let {
+                        ProgressBar(progress = progress, duration = it.durationMs, isPlay = isPlay,viewModel)
+                    }
                 }
             }
         }
     }
+
 }
 
 
 @Composable
-fun ProgressBar(progress: Double, duration: Int = 0, isPlay: Boolean = false) {
+fun ProgressBar(progress: Double, duration: Int = 0, isPlay: Boolean = false,viewModel: AppViewModel) {
     val currentProgress = remember { mutableDoubleStateOf(progress) }
     val progressPercent = (currentProgress.doubleValue / duration.toDouble())
     val width = 200
@@ -182,6 +211,7 @@ fun ProgressBar(progress: Double, duration: Int = 0, isPlay: Boolean = false) {
                 delay(duration = Duration.ofSeconds(1))
                 currentProgress.value += 1000
             }
+            viewModel.sendIntent(AppIntent.NextSong)
         }
     }
 

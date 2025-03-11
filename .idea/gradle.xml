@@ -16,8 +16,6 @@
             <option value="$PROJECT_DIR$/package/feature" />
             <option value="$PROJECT_DIR$/package/feature/feature-authentication" />
             <option value="$PROJECT_DIR$/package/feature/feature-home_screen" />
-            <option value="$PROJECT_DIR$/package/third-party" />
-            <option value="$PROJECT_DIR$/package/third-party/spotify-app-module" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

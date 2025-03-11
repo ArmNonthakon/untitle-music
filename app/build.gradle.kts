@@ -76,7 +76,7 @@ dependencies {
     implementation(project(":package:feature:feature-home_screen"))
     implementation(project(":package:feature:feature-authentication"))
 
-    implementation(project(":package:third-party:spotify-app-module"))
+    implementation(files("C:/Users/peear/Downloads/spotify-app-remote-release-0.8.0.aar"))
 
 
 }

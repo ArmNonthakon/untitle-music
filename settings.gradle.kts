@@ -25,4 +25,5 @@ include(":package:feature:feature-home_screen")
 include(":package:core")
 include(":package:feature:feature-authentication")
 
-include(":package:third-party:spotify-app-module")
+
+

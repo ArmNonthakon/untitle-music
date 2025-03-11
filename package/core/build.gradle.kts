@@ -40,6 +40,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
+    implementation(files("C:/Users/peear/Downloads/spotify-app-remote-release-0.8.0.aar"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -56,7 +58,8 @@ dependencies {
     implementation(libs.kotlin.stdlib.jdk7)
 
     implementation(libs.androidx.security.crypto)
-    implementation(project(":package:third-party:spotify-app-module"))
+
+//    implementation(files("libs/spotify-app-remote-release-0.8.0.aar"))
 
 
 }
