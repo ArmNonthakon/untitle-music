@@ -5,6 +5,7 @@ import com.example.core.data.model.ExternalUrls
 import com.example.core.data.model.Image
 import com.example.core.data.model.Restrictions
 import com.example.core.data.model.artist.ArtistResponse
+import com.example.core.data.model.track.TrackResponse
 import com.google.gson.annotations.SerializedName
 
 data class AlbumResponse(
@@ -21,5 +22,6 @@ data class AlbumResponse(
     @SerializedName("restrictions") val restrictions: Restrictions,
     @SerializedName("type") val type: String,
     @SerializedName("uri") val uri: String,
-    @SerializedName("artists") val artists: List<ArtistResponse>
+    @SerializedName("artists") val artists: List<ArtistResponse>,
+    @SerializedName("tracks") val tracks: List<TrackResponse>,
 )

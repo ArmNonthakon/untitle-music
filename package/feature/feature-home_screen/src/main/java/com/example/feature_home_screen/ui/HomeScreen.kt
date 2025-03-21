@@ -2,6 +2,7 @@ package com.example.feature_home_screen.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,8 +50,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.example.core.data.model.Image
+import com.example.core.presentation.AppIntent
+import com.example.core.presentation.AppViewModel
 import com.example.feature_home_screen.domain.entity.album.albumNewReleases.AlbumNewReleasesEntity
 import com.example.feature_home_screen.domain.entity.track.TrackEntity
 import com.example.feature_home_screen.domain.entity.track.trackSeveral.TrackSeveralEntity
@@ -61,7 +65,7 @@ import com.example.feature_home_screen.presentation.HomeScreenStatus
 import com.example.feature_home_screen.presentation.HomeScreenViewModel
 
 @Composable
-fun HomeScreenProvider(viewModel: HomeScreenViewModel = hiltViewModel()) {
+fun HomeScreenProvider(viewModel: HomeScreenViewModel = hiltViewModel(),appViewModel: AppViewModel,navController: NavController) {
     val state = viewModel.homeScreenState.collectAsState().value
     LaunchedEffect(Unit) {
         viewModel.sendIntent(HomeScreenIntent.GetUserDetail)
@@ -71,19 +75,19 @@ fun HomeScreenProvider(viewModel: HomeScreenViewModel = hiltViewModel()) {
         viewModel.sendIntent(HomeScreenIntent.GetYourTopArtists)
     }
 
-    HomeScreen(state)
+    HomeScreen(state,appViewModel,navController)
 }
 
 
 @Composable
-fun HomeScreen(state: HomeScreenState) {
+fun HomeScreen(state: HomeScreenState,appViewModel: AppViewModel,navController: NavController) {
     val configuration = LocalConfiguration.current
     val widthScreen = configuration.screenWidthDp.dp
 
     Box(Modifier.fillMaxSize()) {
         Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            BuildHomeScreenHeader(widthScreen = widthScreen, user = state.user)
-            BuildHomeScreenContent(state)
+            BuildHomeScreenHeader(widthScreen = widthScreen, user = state.user, navController = navController)
+            BuildHomeScreenContent(state,appViewModel,navController)
         }
         if (state.status == HomeScreenStatus.Loading) {
             Box(
@@ -116,7 +120,7 @@ fun HomeScreen(state: HomeScreenState) {
 
 
 @Composable
-fun BuildHomeScreenHeader(widthScreen: Dp, user: UserEntity?) {
+fun BuildHomeScreenHeader(widthScreen: Dp, user: UserEntity?,navController: NavController) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -188,7 +192,7 @@ fun BuildHomeScreenHeader(widthScreen: Dp, user: UserEntity?) {
 }
 
 @Composable
-fun BuildHomeScreenContent(state: HomeScreenState) {
+fun BuildHomeScreenContent(state: HomeScreenState,appViewModel: AppViewModel,navController: NavController) {
     val isTopArtist = remember { mutableStateOf(true) }
     Column(
         modifier = Modifier.verticalScroll(state = rememberScrollState()),
@@ -201,12 +205,12 @@ fun BuildHomeScreenContent(state: HomeScreenState) {
                 )
             ) {
                 for (i in 1..3) {
-                    AlbumBox()
+                    AlbumBox(navController = navController)
                     Spacer(modifier = Modifier.padding(5.dp))
                 }
             }
         }
-        RecommendAlbum(state)
+        RecommendAlbum(state,navController)
 
         SongBoxGroup(topic = "For you", state)
 
@@ -257,9 +261,9 @@ fun BuildHomeScreenContent(state: HomeScreenState) {
             }
         }
         if (isTopArtist.value) {
-            RankingGroup(topic = "Your Top 10 Artist", state, isTopArtist = true)
+            RankingGroup(topic = "Your Top 10 Artist", state, isTopArtist = true, appViewModel = appViewModel)
         } else {
-            RankingGroup(topic = "Your Top 10 Music", state, isTopArtist = false)
+            RankingGroup(topic = "Your Top 10 Music", state, isTopArtist = false,appViewModel = appViewModel)
         }
 
 
@@ -268,7 +272,7 @@ fun BuildHomeScreenContent(state: HomeScreenState) {
 //Component
 
 @Composable
-fun RecommendAlbum(state: HomeScreenState) {
+fun RecommendAlbum(state: HomeScreenState,navController: NavController) {
     Column {
         Text(
             "New Releases",
@@ -281,11 +285,11 @@ fun RecommendAlbum(state: HomeScreenState) {
             )
         ) {
             if (state.data.albumNewRelease == null) {
-                AlbumBox()
+                AlbumBox(navController = navController)
                 Spacer(modifier = Modifier.padding(5.dp))
             } else {
                 for (i in state.data.albumNewRelease.items) {
-                    AlbumBox(i.images[0])
+                    AlbumBox(i.images[0],navController,i.id)
                     Spacer(modifier = Modifier.padding(5.dp))
                 }
             }
@@ -301,7 +305,7 @@ fun RecommendAlbum(state: HomeScreenState) {
                 HomeScreenStatus.Success -> {
                     if (state.data.albumNewRelease is AlbumNewReleasesEntity) {
                         for (i in state.data.albumNewRelease.items) {
-                            AlbumBox(i.images[0])
+                            AlbumBox(i.images[0],navController,i.id)
                             Spacer(modifier = Modifier.padding(5.dp))
                         }
                     }
@@ -381,7 +385,7 @@ fun SongBoxGroup(topic: String, state: HomeScreenState? = null) {
 }
 
 @Composable
-fun RankingGroup(topic: String, state: HomeScreenState, isTopArtist: Boolean) {
+fun RankingGroup(topic: String, state: HomeScreenState, isTopArtist: Boolean,appViewModel: AppViewModel) {
     Column {
         Text(
             topic,
@@ -401,7 +405,8 @@ fun RankingGroup(topic: String, state: HomeScreenState, isTopArtist: Boolean) {
                                 title = item.name,
                                 subTitle = "${"%,d".format(item.followers.total)} Followers",
                                 isFirst = index == 0,
-                                uri = item.uri
+                                uri = item.uri,
+                                appViewModel = appViewModel
                             )
                         }
                     } else {
@@ -412,7 +417,8 @@ fun RankingGroup(topic: String, state: HomeScreenState, isTopArtist: Boolean) {
                                 title = item.name,
                                 subTitle = item.artists.joinToString(", ") { it.name },
                                 isFirst = index == 0,
-                                uri = item.uri
+                                uri = item.uri,
+                                appViewModel = appViewModel
                             )
                         }
                     }
@@ -436,7 +442,7 @@ fun RankingGroup(topic: String, state: HomeScreenState, isTopArtist: Boolean) {
 
 //Widget
 @Composable
-fun AlbumBox(image: Image? = null) {
+fun AlbumBox(image: Image? = null,navController: NavController,albumId : String? = null) {
     Box(
         modifier = Modifier
             .size(width = 200.dp, height = 200.dp)
@@ -447,7 +453,9 @@ fun AlbumBox(image: Image? = null) {
             model = image?.url,
             contentDescription = "back",
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().clickable {
+                navController.navigate("Album/$albumId")
+            }
         )
     }
 }
@@ -481,7 +489,7 @@ fun SongBox(track: TrackEntity) {
 }
 
 @Composable
-fun RankingCard(number: Int, image: String, title: String, subTitle: String, isFirst: Boolean,uri : String) {
+fun RankingCard(number: Int, image: String, title: String, subTitle: String, isFirst: Boolean,uri : String,appViewModel: AppViewModel) {
     Box(modifier = Modifier.padding(horizontal = if (isFirst) 0.dp else 10.dp)) {
         Box(
             modifier = Modifier
@@ -561,7 +569,9 @@ fun RankingCard(number: Int, image: String, title: String, subTitle: String, isF
                         Icon(
                             Icons.Filled.PlayArrow,
                             contentDescription = "play",
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.align(Alignment.Center).clickable {
+                                appViewModel.sendIntent(AppIntent.PlaySong(uri = uri))
+                            }
                         )
                     }
                 }

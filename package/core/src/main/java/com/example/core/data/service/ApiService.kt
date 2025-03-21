@@ -1,13 +1,17 @@
 package com.example.core.data.service
 
 import com.example.core.data.model.album.albumNewReleases.AlbumsNewReleaseResponse
+import com.example.core.data.model.artist.ArtistResponse
 import com.example.core.data.model.artist.artistYourTop.ArtistYourTopResponse
+import com.example.core.data.model.getAlbumResponse.GetAlbumResponse
 import com.example.core.data.model.player.playBackState.PlayBackStateResponse
 import com.example.core.data.model.track.trackSeveral.TrackSeveralResponse
 import com.example.core.data.model.track.trackYourTopResponse.TrackYourTopResponse
 import com.example.core.data.model.user.UserResponse
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -39,5 +43,14 @@ interface ApiService {
 
     @GET("v1/me/player")
     suspend fun getPlayBackState(): Response<PlayBackStateResponse>
+
+    @GET("v1/albums/{id}")
+    fun getAlbum(@Path("id") albumId: String?): Call<GetAlbumResponse>
+
+    @GET("v1/artists/{id}")
+    fun getArtist(
+        @Path("id") artistId: String,
+    ): Response<ArtistResponse>
+
 
 }

@@ -11,7 +11,7 @@ data class ArtistResponse(
     @SerializedName("genres") val genres: List<String>,
     @SerializedName("href") val href: String,
     @SerializedName("id") val id: String,
-    @SerializedName("images") val images: List<Image>, // Changed to List<Image> instead of a single Image
+    @SerializedName("images") val images: List<Image>,
     @SerializedName("name") val name: String,
     @SerializedName("popularity") val popularity: Int,
     @SerializedName("type") val type: String,

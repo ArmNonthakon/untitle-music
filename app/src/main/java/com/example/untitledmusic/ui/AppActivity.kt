@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,11 +43,12 @@ import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.example.core.R
 import com.example.core.data.model.track.TrackResponse
-import com.example.core.presentation.AppSpotifyAppRemote
+import com.example.core.presentation.AppIntent
+import com.example.core.presentation.AppStatus
+import com.example.core.presentation.AppViewModel
+import com.example.feature_album_detail_screen.ui.AlbumDetailProvider
+import com.example.feature_album_detail_screen.ui.AlbumDetailScreen
 import com.example.feature_home_screen.ui.HomeScreenProvider
-import com.example.untitledmusic.presentation.AppIntent
-import com.example.untitledmusic.presentation.AppStatus
-import com.example.untitledmusic.presentation.AppViewModel
 import com.example.untitledmusic.ui.theme.SpotmusicTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -74,15 +75,11 @@ class AppActivity : ComponentActivity() {
                     if (state.status == AppStatus.Success) {
                         state.player?.progressMs?.let {
                             MusicBottomAppBar(
-                                state.player.item,
+                                state.player!!.item,
                                 progress = it.toDouble(),
                                 isPlay = state.playerState.isPlaying,
                                 viewModel = viewModel
                             )
-                        }
-                    }else{
-                        BottomAppBar(Modifier.background(Color.Black)){
-                            Box (Modifier.background(Color.Black).fillMaxSize())
                         }
                     }
                 }) { innerPadding ->
@@ -98,7 +95,13 @@ class AppActivity : ComponentActivity() {
                         ) {
                             NavHost(navController = navController, startDestination = "Home") {
                                 composable("Home") {
-                                    HomeScreenProvider()
+                                    HomeScreenProvider(appViewModel = viewModel, navController = navController)
+                                }
+                                composable(route = "Album/{albumId}") {
+                                    val albumId = it.arguments?.getString("albumId")
+                                    if (albumId != null) {
+                                        AlbumDetailProvider(appViewModel = viewModel,navController = navController, albumId = albumId)
+                                    }
                                 }
                             }
                         }
@@ -120,7 +123,7 @@ fun MusicBottomAppBar(
     BottomAppBar(Modifier, containerColor = Color.Black) {
         Row(
             Modifier
-                .padding(10.dp)
+                .padding(5.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -143,13 +146,17 @@ fun MusicBottomAppBar(
                     Text(
                         track?.name ?: "Song Name",
                         color = Color.White,
-                        style = TextStyle(fontSize = 16.sp)
+                        style = TextStyle(fontSize = 16.sp),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(Modifier.height(5.dp))
                     Text(
                         track?.artists?.joinToString(", ") { it.name } ?: "Artist",
                         color = Color.White,
-                        style = TextStyle(fontSize = 12.sp)
+                        style = TextStyle(fontSize = 12.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -211,7 +218,7 @@ fun ProgressBar(progress: Double, duration: Int = 0, isPlay: Boolean = false,vie
                 delay(duration = Duration.ofSeconds(1))
                 currentProgress.value += 1000
             }
-            viewModel.sendIntent(AppIntent.NextSong)
+            viewModel.sendIntent(AppIntent.GetPlayBackState)
         }
     }
 

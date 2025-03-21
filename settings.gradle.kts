@@ -27,3 +27,4 @@ include(":package:feature:feature-authentication")
 
 
 
+include(":package:feature:feature-album_detail_screen")
