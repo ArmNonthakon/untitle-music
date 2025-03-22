@@ -159,7 +159,9 @@ fun BuildHomeScreenHeader(widthScreen: Dp, user: UserEntity?,navController: NavC
                 .size(width = widthScreen - (widthScreen / 3), height = 40.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color(78, 78, 78))
-                .padding(horizontal = 15.dp)
+                .padding(horizontal = 15.dp).clickable {
+                    navController.navigate("Search")
+                }
         ) {
             Row(
                 Modifier.align(Alignment.CenterStart),

@@ -50,7 +50,7 @@ interface ApiService {
     @GET("v1/artists/{id}")
     fun getArtist(
         @Path("id") artistId: String,
-    ): Response<ArtistResponse>
+    ): Call<ArtistResponse>
 
 
 }

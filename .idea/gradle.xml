@@ -17,6 +17,7 @@
             <option value="$PROJECT_DIR$/package/feature/feature-album_detail_screen" />
             <option value="$PROJECT_DIR$/package/feature/feature-authentication" />
             <option value="$PROJECT_DIR$/package/feature/feature-home_screen" />
+            <option value="$PROJECT_DIR$/package/feature/feature-search-screen" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

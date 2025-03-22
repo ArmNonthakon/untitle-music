@@ -28,3 +28,4 @@ include(":package:feature:feature-authentication")
 
 
 include(":package:feature:feature-album_detail_screen")
+include(":package:feature:feature-search-screen")

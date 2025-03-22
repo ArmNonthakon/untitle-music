@@ -49,6 +49,7 @@ import com.example.core.presentation.AppViewModel
 import com.example.feature_album_detail_screen.ui.AlbumDetailProvider
 import com.example.feature_album_detail_screen.ui.AlbumDetailScreen
 import com.example.feature_home_screen.ui.HomeScreenProvider
+import com.example.feature_search_screen.ui.SearchScreen
 import com.example.untitledmusic.ui.theme.SpotmusicTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -102,6 +103,9 @@ class AppActivity : ComponentActivity() {
                                     if (albumId != null) {
                                         AlbumDetailProvider(appViewModel = viewModel,navController = navController, albumId = albumId)
                                     }
+                                }
+                                composable(route = "Search") {
+                                    SearchScreen(appViewModel = viewModel,navController = navController)
                                 }
                             }
                         }

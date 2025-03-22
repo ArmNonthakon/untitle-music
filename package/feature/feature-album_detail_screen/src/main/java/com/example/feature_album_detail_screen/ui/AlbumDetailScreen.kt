@@ -2,7 +2,6 @@ package com.example.feature_album_detail_screen.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,9 +59,10 @@ fun AlbumDetailProvider(
     val state = viewModel.albumDetailState.collectAsState().value
     LaunchedEffect(Unit) {
         viewModel.sendIntent(AlbumDetailIntent.GetAlbumResponse(albumId))
+
     }
 
-    AlbumDetailScreen(appViewModel = appViewModel, navController = navController, state = state)
+    AlbumDetailScreen(appViewModel = appViewModel, navController = navController, state = state,)
 }
 
 @Composable
@@ -111,7 +111,7 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
     ) {
         Box(
             Modifier
-                .height(380.dp)
+                .height(500.dp)
                 .fillMaxWidth()
                 .background(Color.White)
         ) {
@@ -121,18 +121,18 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
-                    .alpha(alpha = 0.9f)
+                    .alpha(alpha = 0.6f)
             )
         }
         Column(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(state = rememberScrollState())
-                .background(Color(35, 35, 35, 200))
+                .background(Color(35, 35, 35, 170))
         ) {
             Box(
                 Modifier
-                    .size(350.dp)
+                    .size(355.dp)
                     .background(Color.White)
                     .align(alignment = Alignment.CenterHorizontally)
             ) {
@@ -144,13 +144,13 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
                 )
             }
             Row (Modifier
-                .fillMaxWidth()
-                .background(Color(35, 35, 35)),horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
+                .fillMaxWidth().padding(horizontal = 10.dp)
+                ,horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
                 state.data?.let {
                     Text(
                         it.name,
                         style = TextStyle(color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.W800),
-                        modifier = Modifier.padding(top = 20.dp, bottom = 10.dp).weight(9f),
+                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp).weight(9f),
                         maxLines = 2
                     )
                 }
@@ -176,7 +176,7 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
                 }
 
             }
-            Row (Modifier.background(Color(35, 35, 35))){
+            Row (Modifier.padding(horizontal = 10.dp)){
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -189,7 +189,16 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
                             .clip(shape = CircleShape)
                             .background(Color.White)
                             .size(30.dp)
-                    )
+                    ){
+                        if(state.artist != null){
+                            AsyncImage(
+                                model = state.artist.images[0].url,
+                                contentDescription = "artist",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
                     state.data?.artists?.get(0)
                         ?.let {
                             Text(

@@ -8,5 +8,5 @@ import retrofit2.Response
 
 interface AlbumDetailRepository {
     suspend fun getAlbum(albumId: String): Call<GetAlbumResponse>
-    suspend fun getArtist(artistId: String): Response<ArtistResponse>
+    suspend fun getArtist(artistId: String): Call<ArtistResponse>
 }

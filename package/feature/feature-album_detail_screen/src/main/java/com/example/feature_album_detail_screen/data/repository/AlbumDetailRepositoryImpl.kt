@@ -13,7 +13,7 @@ class AlbumDetailRepositoryImpl @Inject constructor(private val service: ApiServ
         return service.getAlbum(albumId);
     }
 
-    override suspend fun getArtist(artistId: String): Response<ArtistResponse> {
+    override suspend fun getArtist(artistId: String): Call<ArtistResponse> {
         return service.getArtist(artistId);
     }
 }
