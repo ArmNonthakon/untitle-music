@@ -1,4 +1,4 @@
-package com.example.feature_home_screen.domain.entity.album
+package com.example.feature_search_screen.domain.entity
 
 import com.example.core.data.model.Image
 
@@ -11,3 +11,5 @@ data class AlbumEntity(
     val name: String,
     val uri: String,
 )
+
+

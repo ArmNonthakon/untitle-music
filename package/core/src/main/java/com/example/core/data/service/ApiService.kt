@@ -5,6 +5,7 @@ import com.example.core.data.model.artist.ArtistResponse
 import com.example.core.data.model.artist.artistYourTop.ArtistYourTopResponse
 import com.example.core.data.model.getAlbumResponse.GetAlbumResponse
 import com.example.core.data.model.player.playBackState.PlayBackStateResponse
+import com.example.core.data.model.search.SearchResponse
 import com.example.core.data.model.track.trackSeveral.TrackSeveralResponse
 import com.example.core.data.model.track.trackYourTopResponse.TrackYourTopResponse
 import com.example.core.data.model.user.UserResponse
@@ -51,6 +52,13 @@ interface ApiService {
     fun getArtist(
         @Path("id") artistId: String,
     ): Call<ArtistResponse>
+
+    @GET("v1/search")
+    suspend fun searchItems(
+        @Query("q") q : String,
+        @Query("type") type : String = "track,artist,album",
+        @Query("limit") limit : Int = 5
+    ) : Response<SearchResponse>
 
 
 }

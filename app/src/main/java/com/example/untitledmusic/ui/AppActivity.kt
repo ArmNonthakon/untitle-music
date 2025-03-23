@@ -49,6 +49,7 @@ import com.example.core.presentation.AppViewModel
 import com.example.feature_album_detail_screen.ui.AlbumDetailProvider
 import com.example.feature_album_detail_screen.ui.AlbumDetailScreen
 import com.example.feature_home_screen.ui.HomeScreenProvider
+import com.example.feature_search_screen.ui.SearchProvider
 import com.example.feature_search_screen.ui.SearchScreen
 import com.example.untitledmusic.ui.theme.SpotmusicTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -105,7 +106,7 @@ class AppActivity : ComponentActivity() {
                                     }
                                 }
                                 composable(route = "Search") {
-                                    SearchScreen(appViewModel = viewModel,navController = navController)
+                                    SearchProvider(appViewModel = viewModel,navController = navController)
                                 }
                             }
                         }
