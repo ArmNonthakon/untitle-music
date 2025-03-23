@@ -156,12 +156,12 @@ fun BuildHomeScreenHeader(widthScreen: Dp, user: UserEntity?,navController: NavC
         }
         Box(
             modifier = Modifier
-                .size(width = widthScreen - (widthScreen / 3), height = 40.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(Color(78, 78, 78))
-                .padding(horizontal = 15.dp).clickable {
+                .size(width = widthScreen - (widthScreen / 3), height = 40.dp).clickable {
                     navController.navigate("Search")
                 }
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color(78, 78, 78))
+                .padding(horizontal = 15.dp)
         ) {
             Row(
                 Modifier.align(Alignment.CenterStart),
@@ -456,7 +456,7 @@ fun AlbumBox(image: Image? = null,navController: NavController,albumId : String?
             contentDescription = "back",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize().clickable {
-                navController.navigate("Album/$albumId")
+                navController.navigate("Album/Home/$albumId")
             }
         )
     }

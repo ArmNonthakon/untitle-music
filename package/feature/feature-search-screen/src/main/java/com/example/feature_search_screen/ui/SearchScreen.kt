@@ -1,5 +1,7 @@
 package com.example.feature_search_screen.ui
 
+import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -38,9 +40,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,12 +57,17 @@ import com.example.core.data.model.Image
 import com.example.core.data.model.artist.ArtistResponse
 import com.example.core.presentation.AppIntent
 import com.example.core.presentation.AppViewModel
+import com.example.core.storage.SecureSharedPreferences
 import com.example.feature_search_screen.domain.entity.AlbumEntity
 import com.example.feature_search_screen.domain.entity.ArtistEntity
+import com.example.feature_search_screen.domain.entity.PlaylistEntity
 import com.example.feature_search_screen.presentation.SearchIntent
 import com.example.feature_search_screen.presentation.SearchState
 import com.example.feature_search_screen.presentation.SearchStatus
 import com.example.feature_search_screen.presentation.SearchViewModel
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
 import androidx.compose.foundation.layout.Box as Box1
 
 @Composable
@@ -66,9 +76,10 @@ fun SearchProvider(
     appViewModel: AppViewModel,
     navController: NavController
 ) {
+    val secureStorage = SecureSharedPreferences.getInstance(context = LocalContext.current)
     val state = viewModel.searchScreenState.collectAsState().value
     SearchScreen(
-        viewModel = viewModel, appViewModel = appViewModel, navController = navController, state
+        viewModel = viewModel, appViewModel = appViewModel, navController = navController, state,secureStorage = secureStorage
     )
 }
 
@@ -78,22 +89,26 @@ fun SearchScreen(
     viewModel: SearchViewModel,
     appViewModel: AppViewModel,
     navController: NavController,
-    state: SearchState
+    state: SearchState,
+    secureStorage : SharedPreferences
 ) {
     Column {
-        BuildSearchScreenHeader(viewModel, navController)
-        when(state.status){
+        BuildSearchScreenHeader(viewModel, navController,secureStorage)
+        when (state.status) {
             SearchStatus.Idle -> {
                 Text("")
             }
+
             SearchStatus.Loading -> {
                 BuildSearchScreenContent(appViewModel, navController, state)
             }
+
             SearchStatus.Success -> {
                 BuildSearchScreenContent(appViewModel, navController, state)
             }
+
             SearchStatus.Failed -> {
-                Text("")
+                Text(state.message, style = TextStyle(color = Color.White))
             }
         }
     }
@@ -101,7 +116,7 @@ fun SearchScreen(
 }
 
 @Composable
-fun BuildSearchScreenHeader(viewModel: SearchViewModel, navController: NavController) {
+fun BuildSearchScreenHeader(viewModel: SearchViewModel, navController: NavController,secureStorage : SharedPreferences) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -119,7 +134,7 @@ fun BuildSearchScreenHeader(viewModel: SearchViewModel, navController: NavContro
                     navController.navigate("Home")
                 })
         Box1(Modifier.weight(9f)) {
-            SearchBar(viewModel)
+            SearchBar(viewModel,secureStorage)
         }
 
     }
@@ -136,6 +151,7 @@ fun BuildSearchScreenContent(
         TrackSectionContent(appViewModel, state)
         AlbumSectionContent(navController, state)
         ArtistSectionContent(navController, state)
+        PlayListSectionContent(navController, state)
 
         Spacer(Modifier.size(15.dp))
     }
@@ -178,6 +194,57 @@ fun TrackSectionContent(appViewModel: AppViewModel, state: SearchState) {
             }
         }
 
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .background(Color(131, 131, 131))
+        )
+    }
+}
+
+@Composable
+fun PlayListSectionContent(navController: NavController, state: SearchState) {
+    Column {
+        Text(
+            "Playlist",
+            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.W700, color = Color.White),
+            modifier = Modifier.padding(10.dp)
+        )
+        Row(
+            modifier = Modifier.horizontalScroll(
+                state = rememberScrollState(),
+            ), horizontalArrangement = Arrangement.spacedBy(15.dp)
+        ) {
+            when (state.status) {
+                SearchStatus.Idle -> {
+                    Text("")
+                }
+
+                SearchStatus.Loading -> {
+                    for (i in 1..3) {
+                        AlbumBox(navController, null)
+                    }
+
+                }
+
+                SearchStatus.Success -> {
+                    val playlists = state.data?.playlists
+                    if (playlists == null) {
+                        PlaylistBox(navController, null)
+                        PlaylistBox(navController, null)
+                    }
+                    playlists?.map {
+                        PlaylistBox(navController, it)
+                    }
+                }
+
+                SearchStatus.Failed -> {
+                    Text("")
+                }
+            }
+        }
+        Spacer(Modifier.size(30.dp))
         Box(
             Modifier
                 .fillMaxWidth()
@@ -282,17 +349,57 @@ fun ArtistSectionContent(navController: NavController, state: SearchState) {
 }
 
 @Composable
+fun PlaylistBox(navController: NavController, playlist: PlaylistEntity?) {
+    Column(Modifier.width(200.dp)) {
+        Box(
+            modifier = Modifier
+                .size(width = 200.dp, height = 200.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(Color.White)
+        ) {
+            if (playlist != null) {
+                AsyncImage(model = playlist.images.getOrNull(0)?.url ?: "",
+                    contentDescription = "back",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            navController.navigate("Album/Search/${playlist.id}")
+                        })
+            }
+        }
+        Spacer(Modifier.size(5.dp))
+        if (playlist != null) {
+            Text(
+                playlist.name,
+                style = TextStyle(
+                    fontSize = 16.sp, fontWeight = FontWeight.W700, color = Color.White
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 3.dp)
+            )
+        } else {
+            Box(
+                Modifier
+                    .size(width = 100.dp, height = 16.dp)
+                    .background(Color.White)
+            )
+        }
+
+    }
+}
+
+
+@Composable
 fun AlbumBox(navController: NavController, album: AlbumEntity?) {
     Column(Modifier.width(200.dp)) {
-        Box(modifier = Modifier
-            .size(width = 200.dp, height = 200.dp)
-            .clip(RoundedCornerShape(5.dp))
-            .background(Color.White)
-            .clickable {
-                if (album != null) {
-                    navController.navigate("Album/${album.id}")
-                }
-            }) {
+        Box(
+            modifier = Modifier
+                .size(width = 200.dp, height = 200.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(Color.White)
+        ) {
             if (album != null) {
                 AsyncImage(model = album.images[0].url,
                     contentDescription = "back",
@@ -300,7 +407,7 @@ fun AlbumBox(navController: NavController, album: AlbumEntity?) {
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable {
-                            navController.navigate("Album/${album.id}")
+                            navController.navigate("Album/Search/${album.id}")
                         })
             }
         }
@@ -327,20 +434,24 @@ fun AlbumBox(navController: NavController, album: AlbumEntity?) {
 }
 
 @Composable
-fun ArtistBox(navController: NavController,artist: ArtistEntity?) {
+fun ArtistBox(navController: NavController, artist: ArtistEntity?) {
     Column {
-        Box(modifier = Modifier
-            .size(width = 200.dp, height = 200.dp)
-            .clip(RoundedCornerShape(5.dp))
-            .background(Color.White)) {
+        Box(
+            modifier = Modifier
+                .size(width = 200.dp, height = 200.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(Color.White)
+        ) {
             if (artist != null) {
                 AsyncImage(
-                    model = artist.image[0].url,
+                    model = artist.image.getOrNull(0)?.url ?: "",
                     contentDescription = "back",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().clickable {
-                        navController.navigate("Home")
-                    }
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            navController.navigate("Home")
+                        }
                 )
             }
         }
@@ -459,22 +570,48 @@ fun TracksDetail(
     }
 }
 
+@SuppressLint("CommitPrefEdits")
+@OptIn(FlowPreview::class)
 @Composable
-fun SearchBar(viewModel: SearchViewModel) {
+fun SearchBar(viewModel: SearchViewModel,secureStorage : SharedPreferences) {
     val focusRequester = remember { FocusRequester() }
-    var searchText by remember { mutableStateOf("") }
+    var searchText by remember { mutableStateOf(TextFieldValue(
+        text = "",)) }
+    val searchFlow = remember { MutableStateFlow("") }
     LaunchedEffect(Unit) {
+        val cacheSearchText = secureStorage.getString("cache_search_value", null)
+        if(cacheSearchText != null && cacheSearchText != ""){
+            val textFieldValue = TextFieldValue(
+                text = cacheSearchText,
+                selection = TextRange(cacheSearchText.length)
+            )
+            searchText = textFieldValue
+            viewModel.sendIntent(SearchIntent.SearchItems(cacheSearchText))
+        }
         focusRequester.requestFocus()
+        searchFlow
+            .debounce(300)
+            .collect { query ->
+                if (query.isNotEmpty()) {
+                    viewModel.sendIntent(SearchIntent.SearchItems(query))
+                }
+            }
     }
-    TextField(value = searchText,
+    TextField(
+        value = searchText,
         onValueChange = {
             searchText = it
-            if (it != "") {
-                viewModel.sendIntent(SearchIntent.SearchItems(it))
-            }else{
+            searchFlow.value = it.text
+            if(it.text.isEmpty()){
                 viewModel.sendIntent(SearchIntent.InitialState)
+                secureStorage.edit().apply {
+                    remove("cache_search_value")
+                }
             }
-
+            secureStorage.edit().apply {
+                putString("cache_search_value", it.text)
+                apply()
+            }
         },
         textStyle = TextStyle(
             fontSize = 14.sp,

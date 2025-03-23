@@ -1,5 +1,6 @@
 package com.example.untitledmusic.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -46,11 +47,10 @@ import com.example.core.data.model.track.TrackResponse
 import com.example.core.presentation.AppIntent
 import com.example.core.presentation.AppStatus
 import com.example.core.presentation.AppViewModel
+import com.example.core.storage.SecureSharedPreferences
 import com.example.feature_album_detail_screen.ui.AlbumDetailProvider
-import com.example.feature_album_detail_screen.ui.AlbumDetailScreen
 import com.example.feature_home_screen.ui.HomeScreenProvider
 import com.example.feature_search_screen.ui.SearchProvider
-import com.example.feature_search_screen.ui.SearchScreen
 import com.example.untitledmusic.ui.theme.SpotmusicTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -99,10 +99,11 @@ class AppActivity : ComponentActivity() {
                                 composable("Home") {
                                     HomeScreenProvider(appViewModel = viewModel, navController = navController)
                                 }
-                                composable(route = "Album/{albumId}") {
+                                composable(route = "Album/{previousScreen}/{albumId}") {
                                     val albumId = it.arguments?.getString("albumId")
-                                    if (albumId != null) {
-                                        AlbumDetailProvider(appViewModel = viewModel,navController = navController, albumId = albumId)
+                                    val previousScreen = it.arguments?.getString("previousScreen")
+                                    if (albumId != null && previousScreen != null) {
+                                        AlbumDetailProvider(appViewModel = viewModel,navController = navController, albumId = albumId, previousScreen = previousScreen)
                                     }
                                 }
                                 composable(route = "Search") {
@@ -113,6 +114,15 @@ class AppActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    @SuppressLint("CommitPrefEdits")
+    override fun onDestroy() {
+        super.onDestroy()
+        val secureStorage = SecureSharedPreferences.getInstance(context = baseContext)
+        secureStorage.edit().apply{
+            remove("cache_search_value")
         }
     }
 }

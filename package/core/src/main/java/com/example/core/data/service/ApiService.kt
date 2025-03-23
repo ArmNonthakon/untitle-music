@@ -56,7 +56,7 @@ interface ApiService {
     @GET("v1/search")
     suspend fun searchItems(
         @Query("q") q : String,
-        @Query("type") type : String = "track,artist,album",
+        @Query("type") type : String = "track,playlist,artist,album",
         @Query("limit") limit : Int = 5
     ) : Response<SearchResponse>
 
