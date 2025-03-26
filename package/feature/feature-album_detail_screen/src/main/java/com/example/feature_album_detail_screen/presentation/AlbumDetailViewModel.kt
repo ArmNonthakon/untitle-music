@@ -7,7 +7,6 @@ import com.example.feature_album_detail_screen.domain.entity.ArtistDetailEntity
 import com.example.feature_album_detail_screen.domain.usecase.AlbumDetailCallBack
 import com.example.feature_album_detail_screen.domain.usecase.AlbumDetailGetAlbumUseCase
 import com.example.feature_album_detail_screen.domain.usecase.AlbumDetailGetArtistUseCase
-import com.example.feature_album_detail_screen.domain.usecase.ArtistDetailCallBack
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,22 +62,24 @@ class AlbumDetailViewModel @Inject constructor(private val getAlbumUseCase: Albu
     private fun getArtist(artistId: String) {
         _albumDetailState.value = _albumDetailState.value.copy(status = AlbumDetailStatus.Loading)
         viewModelScope.launch {
-            getArtistUseCase.execute(artistId, object : ArtistDetailCallBack {
-                override fun onSuccess(entity: ArtistDetailEntity?) {
+            getArtistUseCase.execute(artistId).onSuccess {
+                if (it is ArtistDetailEntity) {
                     _albumDetailState.value = _albumDetailState.value.copy(
                         status = AlbumDetailStatus.Success,
-                        artist = entity
+                        artist = it
                     )
-                }
-
-                override fun onError(errorMessage: String) {
+                } else {
                     _albumDetailState.value = _albumDetailState.value.copy(
                         status = AlbumDetailStatus.Success,
-                        message = errorMessage
+                        message = "No data"
                     )
                 }
-
-            })
+            }.onFailure {
+                _albumDetailState.value = _albumDetailState.value.copy(
+                    status = AlbumDetailStatus.Success,
+                    message = it.message
+                )
+            }
         }
 
     }

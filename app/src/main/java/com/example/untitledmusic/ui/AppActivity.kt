@@ -49,6 +49,8 @@ import com.example.core.presentation.AppStatus
 import com.example.core.presentation.AppViewModel
 import com.example.core.storage.SecureSharedPreferences
 import com.example.feature_album_detail_screen.ui.AlbumDetailProvider
+import com.example.feature_artist_detail_screen.ui.ArtistDetailProvider
+import com.example.feature_artist_detail_screen.ui.ArtistDetailScreen
 import com.example.feature_home_screen.ui.HomeScreenProvider
 import com.example.feature_search_screen.ui.SearchProvider
 import com.example.untitledmusic.ui.theme.SpotmusicTheme
@@ -99,11 +101,16 @@ class AppActivity : ComponentActivity() {
                                 composable("Home") {
                                     HomeScreenProvider(appViewModel = viewModel, navController = navController)
                                 }
-                                composable(route = "Album/{previousScreen}/{albumId}") {
+                                composable(route = "Album/{albumId}") {
                                     val albumId = it.arguments?.getString("albumId")
-                                    val previousScreen = it.arguments?.getString("previousScreen")
-                                    if (albumId != null && previousScreen != null) {
-                                        AlbumDetailProvider(appViewModel = viewModel,navController = navController, albumId = albumId, previousScreen = previousScreen)
+                                    if (albumId != null ) {
+                                        AlbumDetailProvider(appViewModel = viewModel,navController = navController, albumId = albumId)
+                                    }
+                                }
+                                composable(route = "Artist/{artistId}") {
+                                    val artistId = it.arguments?.getString("artistId")
+                                    if (artistId != null) {
+                                        ArtistDetailProvider(appViewModel = viewModel,navController = navController, artistId = artistId)
                                     }
                                 }
                                 composable(route = "Search") {
@@ -256,3 +263,5 @@ fun ProgressBar(progress: Double, duration: Int = 0, isPlay: Boolean = false,vie
         )
     }
 }
+
+

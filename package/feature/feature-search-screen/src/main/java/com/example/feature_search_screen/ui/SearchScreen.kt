@@ -131,7 +131,7 @@ fun BuildSearchScreenHeader(viewModel: SearchViewModel, navController: NavContro
                 .size(25.dp)
                 .weight(1f)
                 .clickable {
-                    navController.navigate("Home")
+                    navController.popBackStack()
                 })
         Box1(Modifier.weight(9f)) {
             SearchBar(viewModel,secureStorage)
@@ -364,7 +364,7 @@ fun PlaylistBox(navController: NavController, playlist: PlaylistEntity?) {
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable {
-                            navController.navigate("Album/Search/${playlist.id}")
+                            navController.navigate("Album/${playlist.id}")
                         })
             }
         }
@@ -407,7 +407,7 @@ fun AlbumBox(navController: NavController, album: AlbumEntity?) {
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable {
-                            navController.navigate("Album/Search/${album.id}")
+                            navController.navigate("Album/${album.id}")
                         })
             }
         }
@@ -450,7 +450,7 @@ fun ArtistBox(navController: NavController, artist: ArtistEntity?) {
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable {
-                            navController.navigate("Home")
+                            navController.navigate("Artist/${artist.id}")
                         }
                 )
             }

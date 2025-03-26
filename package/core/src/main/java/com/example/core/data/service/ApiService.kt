@@ -2,10 +2,12 @@ package com.example.core.data.service
 
 import com.example.core.data.model.album.albumNewReleases.AlbumsNewReleaseResponse
 import com.example.core.data.model.artist.ArtistResponse
+import com.example.core.data.model.artist.artistTopTracks.ArtistTopTracksResponse
 import com.example.core.data.model.artist.artistYourTop.ArtistYourTopResponse
 import com.example.core.data.model.getAlbumResponse.GetAlbumResponse
 import com.example.core.data.model.player.playBackState.PlayBackStateResponse
 import com.example.core.data.model.search.SearchResponse
+import com.example.core.data.model.track.TrackResponse
 import com.example.core.data.model.track.trackSeveral.TrackSeveralResponse
 import com.example.core.data.model.track.trackYourTopResponse.TrackYourTopResponse
 import com.example.core.data.model.user.UserResponse
@@ -49,9 +51,14 @@ interface ApiService {
     fun getAlbum(@Path("id") albumId: String?): Call<GetAlbumResponse>
 
     @GET("v1/artists/{id}")
-    fun getArtist(
+    suspend fun getArtist(
         @Path("id") artistId: String,
-    ): Call<ArtistResponse>
+    ): Response<ArtistResponse>
+
+    @GET("v1/artists/{id}/top-tracks")
+    suspend fun getArtistTopTracks(
+        @Path("id") artistId : String
+    ) : Response<ArtistTopTracksResponse>
 
     @GET("v1/search")
     suspend fun searchItems(
@@ -59,6 +66,8 @@ interface ApiService {
         @Query("type") type : String = "track,playlist,artist,album",
         @Query("limit") limit : Int = 5
     ) : Response<SearchResponse>
+
+
 
 
 }

@@ -55,7 +55,6 @@ fun AlbumDetailProvider(
     appViewModel: AppViewModel,
     navController: NavController,
     albumId : String,
-    previousScreen : String
 ) {
     val state = viewModel.albumDetailState.collectAsState().value
     LaunchedEffect(Unit) {
@@ -63,7 +62,7 @@ fun AlbumDetailProvider(
 
     }
 
-    AlbumDetailScreen(appViewModel = appViewModel, navController = navController, state = state,previousScreen)
+    AlbumDetailScreen(appViewModel = appViewModel, navController = navController, state = state)
 }
 
 @Composable
@@ -71,14 +70,10 @@ fun AlbumDetailScreen(
     appViewModel: AppViewModel,
     navController: NavController,
     state: AlbumDetailState,
-    previousScreen: String
 ) {
     Column(Modifier.padding(top = 10.dp)) {
         BuildAlbumDetailHeader(
-            appViewModel = appViewModel,
             navController = navController,
-            state = state,
-            previousScreen = previousScreen
         )
         Spacer(Modifier.size(15.dp))
         BuildAlbumDetailContent(appViewModel = appViewModel, state = state)
@@ -88,9 +83,7 @@ fun AlbumDetailScreen(
 
 @Composable
 fun BuildAlbumDetailHeader(
-    appViewModel: AppViewModel,
     navController: NavController,
-    state: AlbumDetailState,previousScreen: String
 ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Icon(
@@ -100,7 +93,7 @@ fun BuildAlbumDetailHeader(
             modifier = Modifier
                 .size(20.dp)
                 .clickable {
-                    navController.navigate(previousScreen)
+                    navController.popBackStack()
                 }
         )
     }

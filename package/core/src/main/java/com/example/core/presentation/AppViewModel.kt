@@ -49,7 +49,8 @@ class AppViewModel @Inject constructor(private val getPlayBackStateUseCase: AppG
                 if (it is PlayBackStateEntity) {
                     _appState.value = _appState.value.copy(
                         status = AppStatus.Success,
-                        player = it
+                        player = it,
+                        playerState = AppPlayerState(isPlaying = it.isPlaying, isHavePlay = true)
                     )
                 } else {
                     _appState.value = _appState.value.copy(
