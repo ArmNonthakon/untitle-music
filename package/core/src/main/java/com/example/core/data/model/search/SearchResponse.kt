@@ -1,12 +1,10 @@
 package com.example.core.data.model.search
 
 import com.example.core.data.model.ExternalUrls
-import com.example.core.data.model.Followers
 import com.example.core.data.model.Image
+import com.example.core.data.model.Owner
 import com.example.core.data.model.album.AlbumResponse
 import com.example.core.data.model.artist.ArtistResponse
-import com.example.core.data.model.getAlbumResponse.ArtistAlbumResponse
-import com.example.core.data.model.getAlbumResponse.TracksAlbumResponse
 import com.example.core.data.model.track.TrackResponse
 import com.google.gson.annotations.SerializedName
 
@@ -106,11 +104,11 @@ data class PlaylistSearchResponse(
     val total: Int,
 
     @SerializedName("items")
-    val items: List<PlaylistResponse?>
+    val items: List<PlaylistItemsResponse?>
 )
 
 
-data class PlaylistResponse(
+data class PlaylistItemsResponse(
     @SerializedName("collaborative") val collaborative: Boolean,
     @SerializedName("description") val description: String,
     @SerializedName("external_urls") val externalUrls: ExternalUrls,
@@ -127,15 +125,6 @@ data class PlaylistResponse(
 )
 
 
-data class Owner(
-    @SerializedName("external_urls") val externalUrls: ExternalUrls,
-    @SerializedName("followers") val followers: Followers,
-    @SerializedName("href") val href: String,
-    @SerializedName("id") val id: String,
-    @SerializedName("type") val type: String,
-    @SerializedName("uri") val uri: String,
-    @SerializedName("display_name") val displayName: String
-)
 
 
 

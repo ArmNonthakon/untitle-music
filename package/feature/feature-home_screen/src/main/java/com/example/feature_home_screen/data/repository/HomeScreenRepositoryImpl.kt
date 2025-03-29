@@ -3,7 +3,7 @@ package com.example.feature_home_screen.data.repository
 import com.example.core.data.model.album.albumNewReleases.AlbumsNewReleaseResponse
 import com.example.core.data.model.artist.artistYourTop.ArtistYourTopResponse
 import com.example.core.data.model.track.trackSeveral.TrackSeveralResponse
-import com.example.core.data.model.track.trackYourTopResponse.TrackYourTopResponse
+import com.example.core.data.model.track.trackYourTopResponse.YourTopTrackResponse
 import com.example.core.data.model.user.UserResponse
 import com.example.core.data.service.ApiService
 import retrofit2.Response
@@ -22,7 +22,7 @@ class HomeScreenRepositoryImpl @Inject constructor (private val service: ApiServ
         return service.getSeveralTracks()
     }
 
-    override suspend fun getYourTopTracks(): Response<TrackYourTopResponse> {
+    override suspend fun getYourTopTracks(): Response<YourTopTrackResponse> {
         return service.getYourTopTracks()
     }
 

@@ -2,6 +2,7 @@ package com.example.feature_search_screen.ui
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -115,8 +116,16 @@ fun SearchScreen(
 
 }
 
+@SuppressLint("CommitPrefEdits")
 @Composable
-fun BuildSearchScreenHeader(viewModel: SearchViewModel, navController: NavController,secureStorage : SharedPreferences) {
+fun BuildSearchScreenHeader(
+    viewModel: SearchViewModel,
+    navController: NavController,
+    secureStorage: SharedPreferences
+) {
+    LaunchedEffect (Unit){
+        Log.d("SecureStorage", "Before removal: " + secureStorage.getString("cache_search_value", "Not found"))
+    }
     Row(
         Modifier
             .fillMaxWidth()
@@ -124,21 +133,25 @@ fun BuildSearchScreenHeader(viewModel: SearchViewModel, navController: NavContro
         horizontalArrangement = Arrangement.spacedBy(15.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(painter = painterResource(id = R.drawable.arrow_back),
-            contentDescription = "back",
+        Icon(
+            painter = painterResource(id = R.drawable.arrow_back),
+            contentDescription = "Back",
             tint = Color.White,
             modifier = Modifier
                 .size(25.dp)
-                .weight(1f)
                 .clickable {
-                    navController.popBackStack()
-                })
-        Box1(Modifier.weight(9f)) {
-            SearchBar(viewModel,secureStorage)
-        }
 
+
+                    navController.popBackStack()
+                }
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Box(Modifier.weight(1f)) {
+            SearchBar(viewModel, secureStorage)
+        }
     }
 }
+
 
 @Composable
 fun BuildSearchScreenContent(
@@ -364,7 +377,7 @@ fun PlaylistBox(navController: NavController, playlist: PlaylistEntity?) {
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable {
-                            navController.navigate("Album/${playlist.id}")
+                            navController.navigate("Playlist/${playlist.id}")
                         })
             }
         }
@@ -579,7 +592,7 @@ fun SearchBar(viewModel: SearchViewModel,secureStorage : SharedPreferences) {
         text = "",)) }
     val searchFlow = remember { MutableStateFlow("") }
     LaunchedEffect(Unit) {
-        val cacheSearchText = secureStorage.getString("cache_search_value", null)
+        val cacheSearchText = secureStorage.getString("cache_search_value", "")
         if(cacheSearchText != null && cacheSearchText != ""){
             val textFieldValue = TextFieldValue(
                 text = cacheSearchText,
@@ -606,6 +619,7 @@ fun SearchBar(viewModel: SearchViewModel,secureStorage : SharedPreferences) {
                 viewModel.sendIntent(SearchIntent.InitialState)
                 secureStorage.edit().apply {
                     remove("cache_search_value")
+                    apply()
                 }
             }
             secureStorage.edit().apply {

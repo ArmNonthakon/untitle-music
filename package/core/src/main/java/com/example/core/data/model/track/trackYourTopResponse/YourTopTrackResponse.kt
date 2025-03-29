@@ -3,7 +3,7 @@ package com.example.core.data.model.track.trackYourTopResponse
 import com.example.core.data.model.track.TrackResponse
 import com.google.gson.annotations.SerializedName
 
-data class TrackYourTopResponse(
+data class YourTopTrackResponse(
     @SerializedName("href")
     val href: String,
 

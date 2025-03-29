@@ -18,6 +18,8 @@
             <option value="$PROJECT_DIR$/package/feature/feature-artist_detail_screen" />
             <option value="$PROJECT_DIR$/package/feature/feature-authentication" />
             <option value="$PROJECT_DIR$/package/feature/feature-home_screen" />
+            <option value="$PROJECT_DIR$/package/feature/feature-player_screen" />
+            <option value="$PROJECT_DIR$/package/feature/feature-playlist_screen" />
             <option value="$PROJECT_DIR$/package/feature/feature-search-screen" />
           </set>
         </option>

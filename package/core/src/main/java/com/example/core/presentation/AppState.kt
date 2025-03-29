@@ -15,5 +15,5 @@ data class AppState(
 
 data class AppPlayerState(
     val isHavePlay : Boolean = false,
-    val isPlaying: Boolean = false
+    val isPlaying: Boolean = false,
 )

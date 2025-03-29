@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -55,6 +56,7 @@ import coil3.compose.AsyncImage
 import com.example.core.data.model.Image
 import com.example.core.presentation.AppIntent
 import com.example.core.presentation.AppViewModel
+import com.example.core.storage.SecureSharedPreferences
 import com.example.feature_home_screen.domain.entity.album.albumNewReleases.AlbumNewReleasesEntity
 import com.example.feature_home_screen.domain.entity.track.TrackEntity
 import com.example.feature_home_screen.domain.entity.track.trackSeveral.TrackSeveralEntity
@@ -71,7 +73,9 @@ fun HomeScreenProvider(
     navController: NavController
 ) {
     val state = viewModel.homeScreenState.collectAsState().value
+    val secureStorage = SecureSharedPreferences.getInstance(context = LocalContext.current)
     LaunchedEffect(Unit) {
+        secureStorage.edit().remove("cache_search_value").apply()
         viewModel.sendIntent(HomeScreenIntent.GetUserDetail)
         viewModel.sendIntent(HomeScreenIntent.GetAlbumNewReleases)
         viewModel.sendIntent(HomeScreenIntent.GetSeveralTracks)

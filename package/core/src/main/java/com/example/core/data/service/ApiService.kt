@@ -6,10 +6,10 @@ import com.example.core.data.model.artist.artistTopTracks.ArtistTopTracksRespons
 import com.example.core.data.model.artist.artistYourTop.ArtistYourTopResponse
 import com.example.core.data.model.getAlbumResponse.GetAlbumResponse
 import com.example.core.data.model.player.playBackState.PlayBackStateResponse
+import com.example.core.data.model.playlist.PlaylistResponse
 import com.example.core.data.model.search.SearchResponse
-import com.example.core.data.model.track.TrackResponse
 import com.example.core.data.model.track.trackSeveral.TrackSeveralResponse
-import com.example.core.data.model.track.trackYourTopResponse.TrackYourTopResponse
+import com.example.core.data.model.track.trackYourTopResponse.YourTopTrackResponse
 import com.example.core.data.model.user.UserResponse
 import retrofit2.Call
 import retrofit2.Response
@@ -36,7 +36,7 @@ interface ApiService {
     suspend fun getYourTopTracks(
         @Query("time_range") timeRange : String = "long_term",
         @Query("limit") limit: Int = 10
-    ): Response<TrackYourTopResponse>
+    ): Response<YourTopTrackResponse>
 
     @GET("v1/me/top/artists")
     suspend fun getYourTopArtists(
@@ -67,7 +67,10 @@ interface ApiService {
         @Query("limit") limit : Int = 5
     ) : Response<SearchResponse>
 
-
+    @GET("v1/playlists/{playlist_id}")
+    suspend fun getPlaylist(
+        @Path("playlist_id") playlistId : String
+    ) : Response<PlaylistResponse>
 
 
 }

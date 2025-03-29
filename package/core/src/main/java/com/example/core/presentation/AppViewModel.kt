@@ -37,7 +37,7 @@ class AppViewModel @Inject constructor(private val getPlayBackStateUseCase: AppG
                     AppIntent.ResumePauseSong -> resumePauseSongEvent()
                     AppIntent.NextSong -> nextSongEvent()
                     AppIntent.PreviousSong -> previousSongEvent()
-                    else -> null
+                    else -> println("No event")
                 }
             }
         }
@@ -105,6 +105,7 @@ class AppViewModel @Inject constructor(private val getPlayBackStateUseCase: AppG
             _appState.value = _appState.value.copy(playerState = _appState.value.playerState.copy(isHavePlay = true,isPlaying = true))
         }
     }
+
 
     fun sendIntent(intent: AppIntent) {
         viewModelScope.launch {
