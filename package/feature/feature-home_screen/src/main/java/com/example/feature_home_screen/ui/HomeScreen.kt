@@ -58,6 +58,7 @@ import com.example.core.presentation.AppIntent
 import com.example.core.presentation.AppViewModel
 import com.example.core.storage.SecureSharedPreferences
 import com.example.feature_home_screen.domain.entity.album.albumNewReleases.AlbumNewReleasesEntity
+import com.example.feature_home_screen.domain.entity.artist.ArtistEntity
 import com.example.feature_home_screen.domain.entity.track.TrackEntity
 import com.example.feature_home_screen.domain.entity.track.trackSeveral.TrackSeveralEntity
 import com.example.feature_home_screen.domain.entity.user.UserEntity
@@ -209,52 +210,46 @@ fun BuildHomeScreenContent(
         modifier = Modifier.verticalScroll(state = rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        if (state.status == HomeScreenStatus.Loading) {
-            Row(
-                modifier = Modifier.horizontalScroll(
-                    state = rememberScrollState(),
-                )
-            ) {
-                for (i in 1..3) {
-                    AlbumBox(navController = navController)
-                    Spacer(modifier = Modifier.padding(5.dp))
-                }
-            }
-        }
+
         RecommendAlbum(state, navController)
 
         SongBoxGroup(topic = "For you", state)
 
         Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-            Button(
-                modifier = Modifier.height(36.dp), onClick = {
-                    isTopArtist.value = true
-                }, colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isTopArtist.value) Color(
-                        69, 183, 221
-                    ) else Color(84, 89, 90)
-                )
-            ) {
-                Text(
-                    "Artists", style = TextStyle(
-                        fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.W600
+            if(state.status == HomeScreenStatus.Success){
+                Button(
+                    modifier = Modifier.height(36.dp), onClick = {
+                        isTopArtist.value = true
+                    }, colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isTopArtist.value) Color(
+                            69, 183, 221
+                        ) else Color(84, 89, 90)
                     )
-                )
-            }
-            Button(
-                modifier = Modifier.height(36.dp), onClick = {
-                    isTopArtist.value = false
-                }, colors = ButtonDefaults.buttonColors(
-                    containerColor = if (!isTopArtist.value) Color(
-                        69, 183, 221
-                    ) else Color(84, 89, 90)
-                )
-            ) {
-                Text(
-                    "Music", style = TextStyle(
-                        fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.W600
+                ) {
+                    Text(
+                        "Artists", style = TextStyle(
+                            fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.W600
+                        )
                     )
-                )
+                }
+                Button(
+                    modifier = Modifier.height(36.dp), onClick = {
+                        isTopArtist.value = false
+                    }, colors = ButtonDefaults.buttonColors(
+                        containerColor = if (!isTopArtist.value) Color(
+                            69, 183, 221
+                        ) else Color(84, 89, 90)
+                    )
+                ) {
+                    Text(
+                        "Music", style = TextStyle(
+                            fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.W600
+                        )
+                    )
+                }
+            }else{
+                Box(Modifier.size(width = 100.dp, height = 36.dp).clip(RoundedCornerShape(50.dp)).background(Color.White))
+                Box(Modifier.size(width = 100.dp, height = 36.dp).clip(RoundedCornerShape(50.dp)).background(Color.White))
             }
         }
         if (isTopArtist.value) {
@@ -281,51 +276,41 @@ fun BuildHomeScreenContent(
 @Composable
 fun RecommendAlbum(state: HomeScreenState, navController: NavController) {
     Column {
-        Text(
-            "New Releases",
-            style = TextStyle(fontSize = 18.sp, color = Color.White, fontWeight = FontWeight.W600)
-        )
-        Spacer(Modifier.size(10.dp))
-        Row(
-            modifier = Modifier.horizontalScroll(
-                state = rememberScrollState(),
+        if (state.status == HomeScreenStatus.Success && state.data.albumNewRelease is AlbumNewReleasesEntity) {
+            Text(
+                "New Releases",
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.W600
+                )
             )
-        ) {
-            if (state.data.albumNewRelease == null) {
-                AlbumBox(navController = navController)
-                Spacer(modifier = Modifier.padding(5.dp))
-            } else {
+            Spacer(Modifier.size(10.dp))
+            Row(
+                modifier = Modifier.horizontalScroll(
+                    state = rememberScrollState(),
+                )
+            ) {
                 for (i in state.data.albumNewRelease.items) {
                     AlbumBox(i.images[0], navController, i.id)
                     Spacer(modifier = Modifier.padding(5.dp))
                 }
             }
-            when (state.status) {
-                HomeScreenStatus.Idle -> {
-                    Text("Idle")
-                }
-
-                HomeScreenStatus.Loading -> {
-                    Text("Loading...")
-                }
-
-                HomeScreenStatus.Success -> {
-                    if (state.data.albumNewRelease is AlbumNewReleasesEntity) {
-                        for (i in state.data.albumNewRelease.items) {
-                            AlbumBox(i.images[0], navController, i.id)
-                            Spacer(modifier = Modifier.padding(5.dp))
-                        }
-                    }
-                }
-
-                HomeScreenStatus.Failed -> {
-                    Box(
-                        modifier = Modifier
-                            .size(width = 200.dp, height = 200.dp)
-                            .background(Color.White)
-                    ) {
-                        Text(state.message, Modifier.align(Alignment.Center))
-                    }
+        } else {
+            Box(
+                Modifier
+                    .size(width = 100.dp, height = 18.dp)
+                    .background(Color.White)
+            )
+            Spacer(Modifier.size(10.dp))
+            Row(
+                modifier = Modifier.horizontalScroll(
+                    state = rememberScrollState(),
+                )
+            ) {
+                for (i in 1..3) {
+                    AlbumBoxSkeleton()
+                    Spacer(modifier = Modifier.padding(5.dp))
                 }
             }
         }
@@ -333,59 +318,43 @@ fun RecommendAlbum(state: HomeScreenState, navController: NavController) {
 }
 
 @Composable
-fun SongBoxGroup(topic: String, state: HomeScreenState? = null) {
+fun SongBoxGroup(topic: String, state: HomeScreenState) {
     Column {
-        Text(
-            topic,
-            style = TextStyle(fontSize = 18.sp, color = Color.White, fontWeight = FontWeight.W600)
-        )
-        Spacer(Modifier.padding(5.dp))
-        Row(
-            modifier = Modifier.horizontalScroll(
-                state = rememberScrollState(),
+        if (state.status == HomeScreenStatus.Success && state.data.trackSeveral is TrackSeveralEntity) {
+            Text(
+                topic,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.W600
+                )
             )
-        ) {
-            when (state?.status) {
-                HomeScreenStatus.Idle -> {
-                    Text("Idle")
-                }
-
-                HomeScreenStatus.Loading -> {
-                    Text("Loading...")
-                }
-
-                HomeScreenStatus.Success -> {
-                    if (state.data.trackSeveral is TrackSeveralEntity) {
-                        for (i in state.data.trackSeveral.track) {
-                            SongBox(track = i)
-                            Spacer(modifier = Modifier.padding(5.dp))
-                        }
-                    }
-                }
-
-                HomeScreenStatus.Failed -> {
-                    Box(
-                        modifier = Modifier
-                            .size(95.dp)
-                            .background(Color.White)
-                    ) {
-                        Text(state.message, Modifier.align(Alignment.Center))
-
-                    }
-                }
-
-                null -> {
-                    Box(
-                        modifier = Modifier
-                            .size(95.dp)
-                            .background(Color.White)
-                    ) {
-                        Text("No data", Modifier.align(Alignment.Center))
-                    }
+            Spacer(Modifier.padding(5.dp))
+            Row(
+                modifier = Modifier.horizontalScroll(
+                    state = rememberScrollState(),
+                )
+            ) {
+                for (i in state.data.trackSeveral.track) {
+                    SongBox(track = i)
+                    Spacer(modifier = Modifier.padding(5.dp))
                 }
             }
-
-
+        } else {
+            Box(Modifier
+                .size(width = 100.dp, height = 18.dp)
+                .background(Color.White))
+            Spacer(Modifier.padding(5.dp))
+            Row(
+                modifier = Modifier.horizontalScroll(
+                    state = rememberScrollState(),
+                )
+            ) {
+                for (i in 1..3) {
+                    SongBoxSkeleton()
+                    Spacer(modifier = Modifier.padding(5.dp))
+                }
+            }
         }
     }
 
@@ -400,60 +369,45 @@ fun RankingGroup(
     navController: NavController
 ) {
     Column {
-        Text(
-            topic,
-            style = TextStyle(fontSize = 18.sp, color = Color.White, fontWeight = FontWeight.W600)
-        )
-        Spacer(Modifier.padding(5.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            when (state.status) {
-                HomeScreenStatus.Idle -> Text("Idle")
-                HomeScreenStatus.Loading -> Text("Loading")
-                HomeScreenStatus.Success -> {
-                    if (isTopArtist) {
-                        state.data.yourTopArtists?.items?.mapIndexed { index, item ->
-                            RankingCard(
-                                number = index + 1,
-                                image = item.image[0].url,
-                                title = item.name,
-                                subTitle = "${"%,d".format(item.followers.total)} Followers",
-                                isFirst = index == 0,
-                                uri = item.uri,
-                                appViewModel = appViewModel,
-                                isTopArtist = true,
-                                artistId = item.id,
-                                navController = navController
-                            )
-                        }
-                    } else {
-                        state.data.yourTopTracks?.items?.mapIndexed { index, item ->
-                            RankingCard(
-                                number = index + 1,
-                                image = item.album.images[0].url,
-                                title = item.name,
-                                subTitle = item.artists.joinToString(", ") { it.name },
-                                isFirst = index == 0,
-                                uri = item.uri,
-                                appViewModel = appViewModel,
-                                isTopArtist = false,
-                                albumId = item.album.id,
-                                navController = navController
-                            )
-                        }
+        if (state.status == HomeScreenStatus.Success) {
+            Text(
+                topic,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.W600
+                )
+            )
+            Spacer(Modifier.padding(5.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                if (isTopArtist) {
+                    state.data.yourTopArtists?.items?.mapIndexed { index, item ->
+                        ArtistRankingCard(
+                            number = index + 1,
+                            artist = item,
+                            appViewModel = appViewModel,
+                            navController = navController
+                        )
                     }
-                }
-
-                HomeScreenStatus.Failed -> {
-                    Box(
-                        modifier = Modifier
-                            .size(95.dp)
-                            .background(Color.White)
-                    ) {
-                        Text(state.message, Modifier.align(Alignment.Center))
+                } else {
+                    state.data.yourTopTracks?.items?.mapIndexed { index, item ->
+                        TrackRankingCard(
+                            number = index + 1,
+                            track = item,
+                            appViewModel = appViewModel,
+                            navController = navController
+                        )
                     }
                 }
             }
-
+        } else {
+            Box(Modifier.size(width = 100.dp, height = 18.dp).background(Color.White))
+            Spacer(Modifier.padding(5.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                for (i in 1..3){
+                    RankingCardSkeleton(i)
+                }
+            }
         }
     }
 }
@@ -480,8 +434,18 @@ fun AlbumBox(image: Image? = null, navController: NavController, albumId: String
 }
 
 @Composable
+fun AlbumBoxSkeleton() {
+    Box(
+        modifier = Modifier
+            .size(width = 200.dp, height = 200.dp)
+            .clip(RoundedCornerShape(5.dp))
+            .background(Color.White)
+    )
+}
+
+@Composable
 fun SongBox(track: TrackEntity) {
-    Column() {
+    Column {
         Box(
             modifier = Modifier
                 .size(150.dp)
@@ -508,20 +472,38 @@ fun SongBox(track: TrackEntity) {
 }
 
 @Composable
-fun RankingCard(
+fun SongBoxSkeleton() {
+    Column {
+        Box(
+            modifier = Modifier
+                .size(150.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(Color.White)
+        )
+        Spacer(Modifier.size(5.dp))
+        Box(
+            Modifier
+                .size(width = 100.dp, height = 16.dp)
+                .background(Color.White)
+        )
+        Spacer(Modifier.size(5.dp))
+        Box(
+            Modifier
+                .size(width = 40.dp, height = 14.dp)
+                .background(Color.White)
+        )
+    }
+}
+
+
+@Composable
+fun ArtistRankingCard(
     number: Int,
-    image: String,
-    title: String,
-    subTitle: String,
-    isFirst: Boolean,
-    uri: String,
+    artist: ArtistEntity,
     appViewModel: AppViewModel,
-    isTopArtist: Boolean,
-    albumId: String? = null,
-    artistId: String? = null,
     navController: NavController
 ) {
-    Box(modifier = Modifier.padding(horizontal = if (isFirst) 0.dp else 10.dp)) {
+    Box(modifier = Modifier.padding(horizontal = if (number == 1) 0.dp else 10.dp)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -530,12 +512,9 @@ fun RankingCard(
                 .border(
                     width = 0.5.dp, color = Color(131, 131, 131), shape = RoundedCornerShape(10.dp)
                 )
-                .background(if (isFirst) Color(94, 166, 190, 228) else Color(0, 0, 0, 0)).clickable {
-                    if(isTopArtist){
-                        navController.navigate("Artist/${artistId}")
-                    }else{
-                        navController.navigate("Album/${albumId}")
-                    }
+                .background(if (number == 1) Color(94, 166, 190, 228) else Color(0, 0, 0, 0))
+                .clickable {
+                    navController.navigate("Artist/${artist.id}")
                 }
         ) {
             Row(
@@ -555,11 +534,11 @@ fun RankingCard(
                     Spacer(Modifier.size(5.dp))
                     Box(
                         Modifier
-                            .size(if (isFirst) 95.dp else 85.dp)
+                            .size(if (number == 1) 95.dp else 85.dp)
                             .clip(shape = RoundedCornerShape(5.dp))
                     ) {
                         AsyncImage(
-                            model = image,
+                            model = artist.image[0].url,
                             contentDescription = "back",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
@@ -568,7 +547,7 @@ fun RankingCard(
                     Spacer(Modifier.size(10.dp))
                     Column {
                         Text(
-                            title,
+                            artist.name,
                             style = TextStyle(
                                 fontWeight = FontWeight.W700,
                                 fontSize = 18.sp,
@@ -580,7 +559,7 @@ fun RankingCard(
                         )
                         Spacer(Modifier.size(7.dp))
                         Text(
-                            subTitle,
+                            "${"%,d".format(artist.followers.total)} Followers",
                             style = TextStyle(
                                 fontWeight = FontWeight.W600,
                                 fontSize = 14.sp,
@@ -609,8 +588,169 @@ fun RankingCard(
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .clickable {
-                                    appViewModel.sendIntent(AppIntent.PlaySong(uri = uri))
+                                    appViewModel.sendIntent(AppIntent.PlaySong(uri = artist.uri))
                                 })
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TrackRankingCard(
+    number: Int,
+    track: TrackEntity,
+    appViewModel: AppViewModel,
+    navController: NavController
+) {
+    Box(modifier = Modifier.padding(horizontal = if (number == 1) 0.dp else 10.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(104.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .border(
+                    width = 0.5.dp, color = Color(131, 131, 131), shape = RoundedCornerShape(10.dp)
+                )
+                .background(if (number == 1) Color(94, 166, 190, 228) else Color(0, 0, 0, 0))
+                .clickable {
+                    navController.navigate("Album/${track.album.id}")
+                }
+        ) {
+            Row(
+                Modifier
+                    .padding(top = 8.dp, start = 5.dp, end = 10.dp, bottom = 8.dp)
+                    .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(Modifier.weight(9f)) {
+                    Text(
+                        "$number", style = TextStyle(
+                            fontWeight = FontWeight.W600,
+                            fontSize = 18.sp,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
+                        ), modifier = Modifier.width(22.dp)
+                    )
+                    Spacer(Modifier.size(5.dp))
+                    Box(
+                        Modifier
+                            .size(if (number == 1) 95.dp else 85.dp)
+                            .clip(shape = RoundedCornerShape(5.dp))
+                    ) {
+                        AsyncImage(
+                            model = track.album.images[0].url,
+                            contentDescription = "back",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    Spacer(Modifier.size(10.dp))
+                    Column {
+                        Text(
+                            track.name,
+                            style = TextStyle(
+                                fontWeight = FontWeight.W700,
+                                fontSize = 18.sp,
+                                color = Color.White,
+                                letterSpacing = 1.2.sp
+                            ),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Spacer(Modifier.size(7.dp))
+                        Text(
+                            track.artists.joinToString(", ") { it.name },
+                            style = TextStyle(
+                                fontWeight = FontWeight.W600,
+                                fontSize = 14.sp,
+                                color = Color.White,
+                                letterSpacing = 1.6.sp
+                            ),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                Box(
+                    Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                ) {
+                    Box(
+                        Modifier
+                            .clip(shape = CircleShape)
+                            .background(Color(69, 183, 221))
+                            .size(30.dp)
+                            .align(Alignment.TopEnd)
+                    ) {
+                        Icon(Icons.Filled.PlayArrow,
+                            contentDescription = "play",
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .clickable {
+                                    appViewModel.sendIntent(AppIntent.PlaySong(uri = track.uri))
+                                })
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun RankingCardSkeleton(
+    number: Int,
+) {
+    Box(modifier = Modifier.padding(horizontal = if (number == 1) 0.dp else 10.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(104.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .border(
+                    width = 0.5.dp, color = Color(131, 131, 131), shape = RoundedCornerShape(10.dp)
+                )
+                .background(Color.White)
+        ) {
+            Row(
+                Modifier
+                    .padding(top = 8.dp, start = 5.dp, end = 10.dp, bottom = 8.dp)
+                    .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(Modifier.weight(9f)) {
+                    Spacer(Modifier.size(5.dp))
+                    Box(
+                        Modifier
+                            .size(if (number == 1) 95.dp else 85.dp)
+                            .clip(shape = RoundedCornerShape(5.dp))
+                            .background(Color.White)
+                    )
+                    Spacer(Modifier.size(10.dp))
+                    Column {
+                        Box(Modifier
+                            .size(width = 50.dp, height = 18.dp)
+                            .background(Color.White))
+                        Spacer(Modifier.size(7.dp))
+                        Box(Modifier
+                            .size(width = 100.dp, height = 14.dp)
+                            .background(Color.White))
+                    }
+                }
+                Box(
+                    Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                ) {
+                    Box(
+                        Modifier
+                            .clip(shape = CircleShape)
+                            .background(Color.White)
+                            .size(30.dp)
+                            .align(Alignment.TopEnd)
+                    ) {
+
                     }
                 }
             }

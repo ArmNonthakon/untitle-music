@@ -4,7 +4,6 @@ import com.example.core.data.model.ExternalUrls
 import com.example.core.data.model.Image
 import com.example.core.data.model.Owner
 import com.example.core.data.model.track.TrackResponse
-import com.example.core.data.model.track.trackYourTopResponse.YourTopTrackResponse
 import com.google.gson.annotations.SerializedName
 
 data class PlaylistResponse(

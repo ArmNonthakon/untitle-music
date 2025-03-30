@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,13 +33,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
@@ -48,12 +48,7 @@ import com.example.core.presentation.AppIntent
 import com.example.core.presentation.AppStatus
 import com.example.core.presentation.AppViewModel
 import com.example.core.storage.SecureSharedPreferences
-import com.example.feature_album_detail_screen.ui.AlbumDetailProvider
-import com.example.feature_artist_detail_screen.ui.ArtistDetailProvider
-import com.example.feature_home_screen.ui.HomeScreenProvider
-import com.example.feature_player_screen.ui.PlayerProvider
-import com.example.feature_playlist_screen.ui.PlaylistProvider
-import com.example.feature_search_screen.ui.SearchProvider
+import com.example.untitledmusic.routes.AppNavHost
 import com.example.untitledmusic.ui.theme.SpotmusicTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -87,7 +82,6 @@ class AppActivity : ComponentActivity() {
                                 viewModel = viewModel,
                                 navController = navController
                             )
-
                         }
                     }
                 }) { innerPadding ->
@@ -101,56 +95,7 @@ class AppActivity : ComponentActivity() {
                                 .padding(10.dp)
                                 .fillMaxSize()
                         ) {
-                            NavHost(navController = navController, startDestination = "Home") {
-                                composable("Home") {
-                                    HomeScreenProvider(
-                                        appViewModel = viewModel,
-                                        navController = navController
-                                    )
-                                }
-                                composable(route = "Album/{albumId}") {
-                                    val albumId = it.arguments?.getString("albumId")
-                                    if (albumId != null) {
-                                        AlbumDetailProvider(
-                                            appViewModel = viewModel,
-                                            navController = navController,
-                                            albumId = albumId
-                                        )
-                                    }
-                                }
-                                composable(route = "Artist/{artistId}") {
-                                    val artistId = it.arguments?.getString("artistId")
-                                    if (artistId != null) {
-                                        ArtistDetailProvider(
-                                            appViewModel = viewModel,
-                                            navController = navController,
-                                            artistId = artistId
-                                        )
-                                    }
-                                }
-                                composable(route = "Playlist/{playlistId}") {
-                                    val playlistId = it.arguments?.getString("playlistId")
-                                    if (playlistId != null) {
-                                        PlaylistProvider(
-                                            appViewModel = viewModel,
-                                            navController = navController,
-                                            playlistId = playlistId
-                                        )
-                                    }
-                                }
-                                composable(route = "Player") {
-                                    PlayerProvider(
-                                        appViewModel = viewModel,
-                                        navController = navController
-                                    )
-                                }
-                                composable(route = "Search") {
-                                    SearchProvider(
-                                        appViewModel = viewModel,
-                                        navController = navController
-                                    )
-                                }
-                            }
+                            AppNavHost(navController,viewModel)
                         }
                     }
                 }
@@ -199,11 +144,11 @@ fun MusicBottomAppBar(
                     }
                 }
                 Spacer(Modifier.width(5.dp))
-                Column (verticalArrangement = Arrangement.Top){
+                Column (Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Top){
                     Text(
                         track?.name ?: "Song Name",
                         color = Color.White,
-                        style = TextStyle(fontSize = 14.sp),
+                        style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.W700),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -211,13 +156,13 @@ fun MusicBottomAppBar(
                     Text(
                         track?.artists?.joinToString(", ") { it.name } ?: "Artist",
                         color = Color.White,
-                        style = TextStyle(fontSize = 10.sp),
+                        style = TextStyle(fontSize = 12.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
             }
-            Spacer(Modifier.size(10.dp))
+            Spacer(Modifier.size(5.dp))
             Row(Modifier.weight(5f)) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Row(horizontalArrangement = Arrangement.spacedBy(40.dp)) {

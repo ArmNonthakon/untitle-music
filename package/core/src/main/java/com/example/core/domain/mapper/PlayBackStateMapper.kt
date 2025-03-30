@@ -5,7 +5,7 @@ import com.example.core.domain.entity.PlayBackStateEntity
 import javax.inject.Inject
 
 class PlayBackStateMapper @Inject constructor() {
-    fun mapper(playBackStateResponse: PlayBackStateResponse): PlayBackStateEntity? {
+    fun mapper(playBackStateResponse: PlayBackStateResponse): PlayBackStateEntity {
         return PlayBackStateEntity(
             device = playBackStateResponse.device,
             repeatState = playBackStateResponse.repeatState,

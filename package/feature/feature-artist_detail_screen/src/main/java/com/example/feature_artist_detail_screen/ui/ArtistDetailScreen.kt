@@ -289,7 +289,7 @@ fun ArtistTrackList(state: ArtistDetailState, appViewModel: AppViewModel) {
         )
         if (state.status == ArtistDetailStatus.Loading) {
             for (i in 1..3) {
-                TracksDetailskeleton()
+                TracksDetailSkeleton()
             }
         } else if (state.status == ArtistDetailStatus.Success) {
             state.topTracks?.items?.map {
@@ -394,7 +394,7 @@ fun TracksDetail(
 }
 
 @Composable
-fun TracksDetailskeleton() {
+fun TracksDetailSkeleton() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
