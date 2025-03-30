@@ -218,7 +218,7 @@ fun BuildHomeScreenContent(
 
         RecommendAlbum(state, navController)
 
-        SongBoxGroup(topic = "For you", state)
+        SongBoxGroup(topic = "For you",state = state, navController = navController)
 
         Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
             if(state.status == HomeScreenStatus.Success){
@@ -329,7 +329,7 @@ fun RecommendAlbum(state: HomeScreenState, navController: NavController) {
 }
 
 @Composable
-fun SongBoxGroup(topic: String, state: HomeScreenState) {
+fun SongBoxGroup(topic: String, state: HomeScreenState,navController: NavController) {
     Column {
         if (state.status == HomeScreenStatus.Success && state.data.trackSeveral is TrackSeveralEntity) {
             Text(
@@ -347,7 +347,7 @@ fun SongBoxGroup(topic: String, state: HomeScreenState) {
                 )
             ) {
                 for (i in state.data.trackSeveral.track) {
-                    SongBox(track = i)
+                    SongBox(track = i, navController = navController)
                     Spacer(modifier = Modifier.padding(5.dp))
                 }
             }
@@ -457,13 +457,15 @@ fun AlbumBoxSkeleton() {
 }
 
 @Composable
-fun SongBox(track: TrackEntity) {
+fun SongBox(track: TrackEntity,navController: NavController) {
     Column {
         Box(
             modifier = Modifier
                 .size(150.dp)
                 .clip(RoundedCornerShape(5.dp))
-                .background(Color.White)
+                .background(Color.White).clickable {
+                    navController.navigate("Album/${track.album.id}")
+                }
         ) {
             AsyncImage(
                 model = track.album.images[1].url,

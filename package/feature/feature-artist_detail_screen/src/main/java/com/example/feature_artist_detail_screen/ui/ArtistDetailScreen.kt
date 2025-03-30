@@ -175,7 +175,7 @@ fun ArtistDetailSection(state: ArtistDetailState, appViewModel: AppViewModel) {
         //Image
         Box(
             Modifier
-                .size(355.dp)
+                .size(355.dp).clip(RoundedCornerShape(20.dp)).padding(top = 10.dp)
                 .background(Color.White)
                 .align(alignment = Alignment.CenterHorizontally)
         ) {

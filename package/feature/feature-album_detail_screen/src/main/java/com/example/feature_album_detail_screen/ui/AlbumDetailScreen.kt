@@ -78,7 +78,7 @@ fun AlbumDetailScreen(
             navController = navController,
         )
         Spacer(Modifier.size(15.dp))
-        BuildAlbumDetailContent(appViewModel = appViewModel, state = state)
+        BuildAlbumDetailContent(appViewModel = appViewModel, state = state, navController = navController)
     }
 }
 
@@ -102,7 +102,7 @@ fun BuildAlbumDetailHeader(
 }
 
 @Composable
-fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState) {
+fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState,navController: NavController) {
     Box(
         Modifier
             .fillMaxSize()
@@ -129,7 +129,7 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
                 .background(Color(35, 35, 35, 170))
         ) {
 
-            AlbumDetailSection(state, appViewModel)
+            AlbumDetailSection(state, appViewModel, navController)
 
             Box(
                 Modifier
@@ -169,18 +169,18 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
 }
 
 @Composable
-fun AlbumDetailSection(state: AlbumDetailState, appViewModel: AppViewModel) {
+fun AlbumDetailSection(state: AlbumDetailState, appViewModel: AppViewModel,navController: NavController) {
     Column {
 
         //Image
         Box(
             Modifier
-                .size(355.dp)
+                .size(355.dp).clip(RoundedCornerShape(20.dp)).padding(top = 10.dp)
                 .background(Color.White)
                 .align(alignment = Alignment.CenterHorizontally)
         ) {
             AsyncImage(
-                model = state.artist?.images?.get(0)?.url,
+                model = state.data?.images?.get(0)?.url,
                 contentDescription = "image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -251,7 +251,9 @@ fun AlbumDetailSection(state: AlbumDetailState, appViewModel: AppViewModel) {
                     Modifier
                         .clip(shape = CircleShape)
                         .background(Color.White)
-                        .size(30.dp)
+                        .size(30.dp).clickable {
+                            navController.navigate("Artist/${state.artist?.id}")
+                        }
                 ){
                     if(state.artist != null){
                         AsyncImage(
