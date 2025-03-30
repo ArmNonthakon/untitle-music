@@ -140,8 +140,6 @@ fun BuildSearchScreenHeader(
             modifier = Modifier
                 .size(25.dp)
                 .clickable {
-
-
                     navController.popBackStack()
                 }
         )

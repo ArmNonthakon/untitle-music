@@ -75,13 +75,19 @@ fun PlayerScreen(appViewModel: AppViewModel, navController: NavController, state
 
 @Composable
 fun BuildPlayerScreenHeader(navController: NavController) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(end = 15.dp),
+        horizontalArrangement = Arrangement.spacedBy(15.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Icon(
             painter = painterResource(id = R.drawable.arrow_back),
-            contentDescription = "back",
+            contentDescription = "Back",
             tint = Color.White,
             modifier = Modifier
-                .size(20.dp)
+                .size(25.dp)
                 .clickable {
                     navController.popBackStack()
                 }
@@ -95,7 +101,7 @@ fun BuildPlayerScreenTracksPicture(state: AppState) {
     Box(
         Modifier
             .background(Color.White)
-            .size((heightScreen / 1.8).dp)
+            .size((heightScreen / 1.7).dp)
     ) {
         AsyncImage(
             model = state.player?.item?.album?.images?.get(0)?.url,
@@ -103,12 +109,12 @@ fun BuildPlayerScreenTracksPicture(state: AppState) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
-                .alpha(alpha = 0.8f)
+                .alpha(alpha = 0.5f)
         )
         Box(
             Modifier
                 .background(Color.Black)
-                .size(400.dp)
+                .size((heightScreen / 2).dp)
                 .align(Alignment.Center)
         ) {
             AsyncImage(
@@ -165,7 +171,7 @@ fun BuildPlayerScreenPlayer(viewModel: AppViewModel, state: AppState) {
                 painter = painterResource(id = R.drawable.back),
                 contentDescription = "back",
                 modifier = Modifier
-                    .size(35.dp)
+                    .size(37.dp)
                     .clickable {
                         viewModel.sendIntent(AppIntent.PreviousSong)
                     }
@@ -174,7 +180,7 @@ fun BuildPlayerScreenPlayer(viewModel: AppViewModel, state: AppState) {
                 painter = painterResource(id = if (!state.playerState.isPlaying) R.drawable.play else R.drawable.pause),
                 contentDescription = "play",
                 modifier = Modifier
-                    .size(35.dp)
+                    .size(39.dp)
                     .clickable {
                         viewModel.sendIntent(AppIntent.ResumePauseSong)
                     }
@@ -183,13 +189,13 @@ fun BuildPlayerScreenPlayer(viewModel: AppViewModel, state: AppState) {
                 painter = painterResource(id = R.drawable.next),
                 contentDescription = "next",
                 modifier = Modifier
-                    .size(35.dp)
+                    .size(37.dp)
                     .clickable {
                         viewModel.sendIntent(AppIntent.NextSong)
                     }
             )
         }
-        Spacer(Modifier.size(20.dp))
+        Spacer(Modifier.size(25.dp))
         state.player?.let {
             it.durationMs?.let { it1 ->
                 ProgressBar(
