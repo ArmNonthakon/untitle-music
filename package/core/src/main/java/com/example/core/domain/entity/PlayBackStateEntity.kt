@@ -12,7 +12,7 @@ data class PlayBackStateEntity(
     val shuffleState: Boolean,
     val context: Context?,
     val timestamp: Long,
-    val progressMs: Long,
+    var progressMs: Long,
     val durationMs: Int?,
     val isPlaying: Boolean,
     val item: TrackResponse?,

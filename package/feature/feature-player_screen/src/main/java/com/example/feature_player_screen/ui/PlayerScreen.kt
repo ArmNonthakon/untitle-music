@@ -20,8 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,7 +38,6 @@ import com.example.core.R
 import com.example.core.presentation.AppIntent
 import com.example.core.presentation.AppState
 import com.example.core.presentation.AppViewModel
-import kotlinx.coroutines.delay
 
 
 @Composable
@@ -60,7 +57,7 @@ fun PlayerScreen(appViewModel: AppViewModel, navController: NavController, state
         //Header
         BuildPlayerScreenHeader(navController)
 
-        Spacer(Modifier.size(30.dp))
+        Spacer(Modifier.size(20.dp))
 
         BuildPlayerScreenTracksPicture(state)
 
@@ -70,7 +67,7 @@ fun PlayerScreen(appViewModel: AppViewModel, navController: NavController, state
 
         Spacer(Modifier.size(15.dp))
 
-        BuildPlayerScreenPlayer(appViewModel,state)
+        BuildPlayerScreenPlayer(appViewModel, state)
 
     }
 }
@@ -94,7 +91,7 @@ fun BuildPlayerScreenHeader(navController: NavController) {
 
 @Composable
 fun BuildPlayerScreenTracksPicture(state: AppState) {
-    val heightScreen =  LocalConfiguration.current.screenHeightDp
+    val heightScreen = LocalConfiguration.current.screenHeightDp
     Box(
         Modifier
             .background(Color.White)
@@ -131,7 +128,7 @@ fun BuildPlayerScreenTracksDetail(state: AppState) {
             Text(
                 it.name,
                 style = TextStyle(
-                    fontSize = 32.sp,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.W700,
                     color = Color.White
                 )
@@ -151,7 +148,7 @@ fun BuildPlayerScreenTracksDetail(state: AppState) {
                     artist.joinToString(", ") { it.name },
                     style = TextStyle(
                         color = Color.White,
-                        fontSize = 14.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.W600
                     )
                 )
@@ -161,14 +158,14 @@ fun BuildPlayerScreenTracksDetail(state: AppState) {
 }
 
 @Composable
-fun BuildPlayerScreenPlayer(viewModel: AppViewModel,state: AppState) {
-    Column (horizontalAlignment = Alignment.CenterHorizontally){
+fun BuildPlayerScreenPlayer(viewModel: AppViewModel, state: AppState) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
             Image(
                 painter = painterResource(id = R.drawable.back),
                 contentDescription = "back",
                 modifier = Modifier
-                    .size(25.dp)
+                    .size(35.dp)
                     .clickable {
                         viewModel.sendIntent(AppIntent.PreviousSong)
                     }
@@ -177,7 +174,7 @@ fun BuildPlayerScreenPlayer(viewModel: AppViewModel,state: AppState) {
                 painter = painterResource(id = if (!state.playerState.isPlaying) R.drawable.play else R.drawable.pause),
                 contentDescription = "play",
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(35.dp)
                     .clickable {
                         viewModel.sendIntent(AppIntent.ResumePauseSong)
                     }
@@ -186,42 +183,35 @@ fun BuildPlayerScreenPlayer(viewModel: AppViewModel,state: AppState) {
                 painter = painterResource(id = R.drawable.next),
                 contentDescription = "next",
                 modifier = Modifier
-                    .size(25.dp)
+                    .size(35.dp)
                     .clickable {
                         viewModel.sendIntent(AppIntent.NextSong)
                     }
             )
         }
         Spacer(Modifier.size(20.dp))
-        state.player?.let { it.durationMs?.let { it1 -> ProgressBar(progress = it.progressMs.toDouble(), duration = it1, isPlay = state.playerState.isPlaying, viewModel = viewModel) } }
+        state.player?.let {
+            it.durationMs?.let { it1 ->
+                ProgressBar(
+                    currentProgress = it.progressMs.toDouble(),
+                    duration = it1
+                )
+            }
+        }
     }
 }
 
 @SuppressLint("DefaultLocale")
 @Composable
 fun ProgressBar(
-    progress: Double,
+    currentProgress: Double,
     duration: Int = 0,
-    isPlay: Boolean = false,
-    viewModel: AppViewModel
 ) {
-    val currentProgress = remember { mutableDoubleStateOf(progress) }
-    val progressPercent = (currentProgress.doubleValue / duration.toDouble())
+    val progressPercent = (currentProgress / duration.toDouble())
     val width = LocalConfiguration.current.screenWidthDp - 40
     val minutesDuration = duration / 60000
     val secondsDuration = (duration % 60000) / 1000
 
-    LaunchedEffect(isPlay) {
-        viewModel.sendIntent(AppIntent.GetPlayBackState)
-
-        while (isPlay && currentProgress.doubleValue < duration) {
-           delay(timeMillis = 1000)
-            currentProgress.value += 1000
-        }
-        if (currentProgress.doubleValue >= duration) {
-            viewModel.sendIntent(AppIntent.GetPlayBackState)
-        }
-    }
 
     Column {
         Box(
@@ -239,14 +229,26 @@ fun ProgressBar(
         Spacer(Modifier.size(10.dp))
         Row(Modifier.width(width.dp), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
-                String.format("%02d:%02d", (currentProgress.doubleValue.toInt() / 60000), (currentProgress.doubleValue.toInt() % 60000) / 1000),
-                style = TextStyle(fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.W600),
+                String.format(
+                    "%02d:%02d",
+                    (currentProgress.toInt() / 60000),
+                    (currentProgress.toInt() % 60000) / 1000
+                ),
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.W600
+                ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 String.format("%02d:%02d", minutesDuration, secondsDuration),
-                style = TextStyle(fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.W600),
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.W600
+                ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

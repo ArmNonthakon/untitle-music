@@ -8,6 +8,7 @@ import com.example.core.domain.usecase.AppGetPlayBackStateUseCase
 import com.example.core.utils.SpotifyAppRemoteController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,7 @@ class AppViewModel @Inject constructor(private val getPlayBackStateUseCase: AppG
 
     private val _appState = MutableStateFlow(AppState())
     val appState: StateFlow<AppState> = _appState
+    private var job: Job? = null
 
     init {
         handleIntent()
@@ -52,6 +54,7 @@ class AppViewModel @Inject constructor(private val getPlayBackStateUseCase: AppG
                         player = it,
                         playerState = AppPlayerState(isPlaying = it.isPlaying, isHavePlay = true)
                     )
+                    startSongProgress()
                 } else {
                     _appState.value = _appState.value.copy(
                         status = AppStatus.Failed,
@@ -66,6 +69,29 @@ class AppViewModel @Inject constructor(private val getPlayBackStateUseCase: AppG
             }
         }
     }
+
+    private fun startSongProgress() {
+        job?.cancel()
+        job = viewModelScope.launch {
+            while (_appState.value.playerState.isPlaying) {
+                val currentPlayer = _appState.value.player
+                if (currentPlayer == null || currentPlayer.progressMs >= currentPlayer.durationMs!!) break
+
+                delay(1000L)
+
+                _appState.value = _appState.value.copy(
+                    player = currentPlayer.copy(progressMs = currentPlayer.progressMs + 1000)
+                )
+            }
+
+            if ((_appState.value.player?.progressMs ?: 0) >= (_appState.value.player?.durationMs
+                    ?: 0)
+            ) {
+                getPlayBackStateEvent()
+            }
+        }
+    }
+
 
     private fun playSongEvent(uri: String) {
         viewModelScope.launch {
@@ -84,6 +110,7 @@ class AppViewModel @Inject constructor(private val getPlayBackStateUseCase: AppG
             }else{
                 spotifyAppRemote.resumeSong()
                 _appState.value = _appState.value.copy(playerState = _appState.value.playerState.copy(isPlaying = true))
+                startSongProgress()
             }
         }
     }

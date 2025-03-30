@@ -6,4 +6,5 @@ sealed interface AppIntent {
     data object ResumePauseSong : AppIntent
     data object NextSong : AppIntent
     data object PreviousSong : AppIntent
+    
 }

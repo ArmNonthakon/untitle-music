@@ -1,6 +1,5 @@
 package com.example.untitledmusic.ui
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,14 +25,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,7 +50,6 @@ import com.example.core.presentation.AppViewModel
 import com.example.core.storage.SecureSharedPreferences
 import com.example.feature_album_detail_screen.ui.AlbumDetailProvider
 import com.example.feature_artist_detail_screen.ui.ArtistDetailProvider
-import com.example.feature_artist_detail_screen.ui.ArtistDetailScreen
 import com.example.feature_home_screen.ui.HomeScreenProvider
 import com.example.feature_player_screen.ui.PlayerProvider
 import com.example.feature_playlist_screen.ui.PlaylistProvider
@@ -62,8 +57,6 @@ import com.example.feature_search_screen.ui.SearchProvider
 import com.example.untitledmusic.ui.theme.SpotmusicTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.time.delay
-import java.time.Duration
 
 @AndroidEntryPoint
 class AppActivity : ComponentActivity() {
@@ -206,11 +199,11 @@ fun MusicBottomAppBar(
                     }
                 }
                 Spacer(Modifier.width(5.dp))
-                Column {
+                Column (verticalArrangement = Arrangement.Top){
                     Text(
                         track?.name ?: "Song Name",
                         color = Color.White,
-                        style = TextStyle(fontSize = 16.sp),
+                        style = TextStyle(fontSize = 14.sp),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -218,13 +211,13 @@ fun MusicBottomAppBar(
                     Text(
                         track?.artists?.joinToString(", ") { it.name } ?: "Artist",
                         color = Color.White,
-                        style = TextStyle(fontSize = 12.sp),
+                        style = TextStyle(fontSize = 10.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
             }
-
+            Spacer(Modifier.size(10.dp))
             Row(Modifier.weight(5f)) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Row(horizontalArrangement = Arrangement.spacedBy(40.dp)) {
@@ -261,10 +254,8 @@ fun MusicBottomAppBar(
                     Spacer(Modifier.height(8.dp))
                     track?.let {
                         ProgressBar(
-                            progress = progress,
+                            currentProgress = progress,
                             duration = it.durationMs,
-                            isPlay = isPlay,
-                            viewModel
                         )
                     }
                 }
@@ -277,25 +268,11 @@ fun MusicBottomAppBar(
 
 @Composable
 fun ProgressBar(
-    progress: Double,
+    currentProgress: Double,
     duration: Int = 0,
-    isPlay: Boolean = false,
-    viewModel: AppViewModel
 ) {
-    val currentProgress = remember { mutableDoubleStateOf(progress) }
-    val progressPercent = (currentProgress.doubleValue / duration.toDouble())
+    val progressPercent = (currentProgress / duration.toDouble())
     val width = 200
-
-    LaunchedEffect(Unit) {
-        if (isPlay) {
-            while (currentProgress.doubleValue < duration) {
-                delay(duration = Duration.ofSeconds(1))
-                currentProgress.value += 1000
-            }
-            viewModel.sendIntent(AppIntent.GetPlayBackState)
-        }
-    }
-
     Box(
         Modifier
             .size(width = width.dp, height = 3.dp)
