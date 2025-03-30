@@ -139,7 +139,7 @@ fun BuildSearchScreenHeader(
             tint = Color.White,
             modifier = Modifier
                 .size(25.dp)
-                .clickable {
+                .clickable(interactionSource = null, indication = null) {
                     navController.popBackStack()
                 }
         )

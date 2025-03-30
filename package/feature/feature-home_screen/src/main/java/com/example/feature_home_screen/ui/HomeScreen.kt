@@ -100,7 +100,13 @@ fun HomeScreen(state: HomeScreenState, appViewModel: AppViewModel, navController
                 user = state.user,
                 navController = navController
             )
-            BuildHomeScreenContent(state, appViewModel, navController)
+            if(state.status == HomeScreenStatus.Failed){
+                Box (Modifier.fillMaxSize()){
+                    Text(state.message, style = TextStyle(fontSize = 40.sp, fontWeight = FontWeight.W700, color = Color.White), modifier = Modifier.align(Alignment.Center))
+                }
+            }else{
+                BuildHomeScreenContent(state, appViewModel, navController)
+            }
         }
         if (state.status == HomeScreenStatus.Loading) {
             Box(
@@ -163,11 +169,10 @@ fun BuildHomeScreenHeader(widthScreen: Dp, user: UserEntity?, navController: Nav
         }
         Box(modifier = Modifier
             .size(width = widthScreen - (widthScreen / 3), height = 40.dp)
-            .clickable {
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(78, 78, 78)).clickable {
                 navController.navigate("Search")
             }
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color(78, 78, 78))
             .padding(horizontal = 15.dp)) {
             Row(
                 Modifier.align(Alignment.CenterStart),
@@ -248,8 +253,14 @@ fun BuildHomeScreenContent(
                     )
                 }
             }else{
-                Box(Modifier.size(width = 100.dp, height = 36.dp).clip(RoundedCornerShape(50.dp)).background(Color.White))
-                Box(Modifier.size(width = 100.dp, height = 36.dp).clip(RoundedCornerShape(50.dp)).background(Color.White))
+                Box(Modifier
+                    .size(width = 100.dp, height = 36.dp)
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(Color.White))
+                Box(Modifier
+                    .size(width = 100.dp, height = 36.dp)
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(Color.White))
             }
         }
         if (isTopArtist.value) {
@@ -401,7 +412,9 @@ fun RankingGroup(
                 }
             }
         } else {
-            Box(Modifier.size(width = 100.dp, height = 18.dp).background(Color.White))
+            Box(Modifier
+                .size(width = 100.dp, height = 18.dp)
+                .background(Color.White))
             Spacer(Modifier.padding(5.dp))
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 for (i in 1..3){
@@ -581,15 +594,17 @@ fun ArtistRankingCard(
                             .clip(shape = CircleShape)
                             .background(Color(69, 183, 221))
                             .size(30.dp)
-                            .align(Alignment.TopEnd)
+                            .align(alignment = Alignment.TopEnd).clickable {
+                                appViewModel.sendIntent(AppIntent.PlaySong(uri = artist.uri))
+                            }
+
                     ) {
-                        Icon(Icons.Filled.PlayArrow,
+                        Icon(
+                            Icons.Filled.PlayArrow,
                             contentDescription = "play",
                             modifier = Modifier
                                 .align(Alignment.Center)
-                                .clickable {
-                                    appViewModel.sendIntent(AppIntent.PlaySong(uri = artist.uri))
-                                })
+                        )
                     }
                 }
             }
@@ -682,15 +697,15 @@ fun TrackRankingCard(
                             .clip(shape = CircleShape)
                             .background(Color(69, 183, 221))
                             .size(30.dp)
-                            .align(Alignment.TopEnd)
+                            .align(Alignment.TopEnd).clickable {
+                                appViewModel.sendIntent(AppIntent.PlaySong(uri = track.uri))
+                            }
                     ) {
                         Icon(Icons.Filled.PlayArrow,
                             contentDescription = "play",
                             modifier = Modifier
                                 .align(Alignment.Center)
-                                .clickable {
-                                    appViewModel.sendIntent(AppIntent.PlaySong(uri = track.uri))
-                                })
+                        )
                     }
                 }
             }

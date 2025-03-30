@@ -171,7 +171,7 @@ fun MusicBottomAppBar(
                             contentDescription = "back",
                             modifier = Modifier
                                 .size(25.dp)
-                                .clickable {
+                                .clickable(interactionSource = null, indication = null){
                                     viewModel.sendIntent(AppIntent.PreviousSong)
                                 }
                         )
@@ -180,7 +180,7 @@ fun MusicBottomAppBar(
                             contentDescription = "play",
                             modifier = Modifier
                                 .size(30.dp)
-                                .clickable {
+                                .clickable(interactionSource = null, indication = null) {
                                     viewModel.sendIntent(AppIntent.ResumePauseSong)
                                 }
                         )
@@ -189,7 +189,7 @@ fun MusicBottomAppBar(
                             contentDescription = "next",
                             modifier = Modifier
                                 .size(25.dp)
-                                .clickable {
+                                .clickable(interactionSource = null, indication = null) {
                                     scope.launch {
                                         viewModel.sendIntent(AppIntent.NextSong)
                                     }

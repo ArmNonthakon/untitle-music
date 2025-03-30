@@ -94,7 +94,7 @@ fun BuildAlbumDetailHeader(
             tint = Color.White,
             modifier = Modifier
                 .size(20.dp)
-                .clickable {
+                .clickable(interactionSource = null, indication = null) {
                     navController.popBackStack()
                 }
         )
@@ -229,7 +229,10 @@ fun ArtistDetailSection(state: ArtistDetailState, appViewModel: AppViewModel) {
                         .clip(shape = CircleShape)
                         .background(Color(69, 183, 221))
                         .size(30.dp)
-                        .align(alignment = Alignment.BottomCenter)
+                        .align(alignment = Alignment.BottomCenter).clickable {
+                            state.artist?.uri?.let { AppIntent.PlaySong(uri = it) }
+                                ?.let { appViewModel.sendIntent(it) }
+                        }
 
                 ) {
                     Icon(
@@ -237,10 +240,6 @@ fun ArtistDetailSection(state: ArtistDetailState, appViewModel: AppViewModel) {
                         contentDescription = "play",
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .clickable {
-                                state.artist?.uri?.let { AppIntent.PlaySong(uri = it) }
-                                    ?.let { appViewModel.sendIntent(it) }
-                            }
                     )
                 }
             }

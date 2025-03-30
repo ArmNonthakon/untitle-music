@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +47,7 @@ import com.example.core.presentation.AppIntent
 import com.example.core.presentation.AppViewModel
 import com.example.feature_album_detail_screen.presentation.AlbumDetailIntent
 import com.example.feature_album_detail_screen.presentation.AlbumDetailState
+import com.example.feature_album_detail_screen.presentation.AlbumDetailStatus
 import com.example.feature_album_detail_screen.presentation.AlbumDetailViewModel
 
 
@@ -92,7 +94,7 @@ fun BuildAlbumDetailHeader(
             tint = Color.White,
             modifier = Modifier
                 .size(20.dp)
-                .clickable {
+                .clickable(interactionSource = null, indication = null) {
                     navController.popBackStack()
                 }
         )
@@ -126,22 +128,74 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
                 .verticalScroll(state = rememberScrollState())
                 .background(Color(35, 35, 35, 170))
         ) {
+
+            AlbumDetailSection(state, appViewModel)
+
             Box(
                 Modifier
-                    .size(355.dp)
-                    .background(Color.White)
-                    .align(alignment = Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(Color(131, 131, 131))
+            )
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color(35, 35, 35))
+                    .padding(horizontal = 10.dp, vertical = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                AsyncImage(
-                    model = state.data?.images?.get(0)?.url,
-                    contentDescription = "image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                Text(
+                    "#Title",
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.W600
+                    )
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.schedule),
+                    contentDescription = "schedule",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.White
                 )
             }
-            Row (Modifier
-                .fillMaxWidth().padding(horizontal = 10.dp)
-                ,horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
+            AlbumTrackList(state,appViewModel)
+
+
+        }
+    }
+
+}
+
+@Composable
+fun AlbumDetailSection(state: AlbumDetailState, appViewModel: AppViewModel) {
+    Column {
+
+        //Image
+        Box(
+            Modifier
+                .size(355.dp)
+                .background(Color.White)
+                .align(alignment = Alignment.CenterHorizontally)
+        ) {
+            AsyncImage(
+                model = state.artist?.images?.get(0)?.url,
+                contentDescription = "image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        //Detail
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (state.status == AlbumDetailStatus.Success) {
                 state.data?.let {
                     Text(
                         it.name,
@@ -150,51 +204,65 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
                         maxLines = 2
                     )
                 }
-                Box(Modifier.weight(1f)){
+            } else {
+                Box(Modifier
+                    .weight(9f)
+                    .padding(top = 10.dp, bottom = 10.dp)) {
                     Box(
                         Modifier
-                            .clip(shape = CircleShape)
-                            .background(Color(69, 183, 221))
-                            .size(30.dp).align(alignment = Alignment.BottomCenter)
+                            .width(200.dp)
+                            .height(height = 26.dp)
+                            .background(Color.White)
+                    )
+                }
+            }
 
-                    ) {
-                        Icon(
-                            Icons.Filled.PlayArrow,
-                            contentDescription = "play",
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .clickable {
-                                    state.data?.uri?.let { AppIntent.PlaySong(uri = it) }
-                                        ?.let { appViewModel.sendIntent(it) }
-                                }
+            Box(Modifier.weight(1f)) {
+                Box(
+                    Modifier
+                        .clip(shape = CircleShape)
+                        .background(Color(69, 183, 221))
+                        .size(30.dp)
+                        .align(alignment = Alignment.BottomCenter).clickable {
+                            state.data?.uri?.let { AppIntent.PlaySong(uri = it) }
+                                ?.let { appViewModel.sendIntent(it) }
+                        }
+
+                ) {
+                    Icon(
+                        Icons.Filled.PlayArrow,
+                        contentDescription = "play",
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                    )
+                }
+            }
+
+        }
+        Row (Modifier.padding(horizontal = 10.dp)){
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 15.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Box(
+                    Modifier
+                        .clip(shape = CircleShape)
+                        .background(Color.White)
+                        .size(30.dp)
+                ){
+                    if(state.artist != null){
+                        AsyncImage(
+                            model = state.artist.images[0].url,
+                            contentDescription = "artist",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
-
-            }
-            Row (Modifier.padding(horizontal = 10.dp)){
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 15.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Box(
-                        Modifier
-                            .clip(shape = CircleShape)
-                            .background(Color.White)
-                            .size(30.dp)
-                    ){
-                        if(state.artist != null){
-                            AsyncImage(
-                                model = state.artist.images[0].url,
-                                contentDescription = "artist",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
+                if(state.status == AlbumDetailStatus.Success){
                     state.data?.artists?.get(0)
                         ?.let {
                             Text(
@@ -202,31 +270,41 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
                                 style = TextStyle(color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.W600)
                             )
                         }
+                }else{
+                    Box(
+                        Modifier
+                            .width(100.dp)
+                            .height(height = 14.dp)
+                            .background(Color.White)
+                    )
                 }
             }
+        }
+    }
+}
 
-
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(Color(131, 131, 131))
-            )
-            Row (Modifier
+@Composable
+fun AlbumTrackList(state: AlbumDetailState, appViewModel: AppViewModel) {
+    Column {
+        Box(
+            Modifier
                 .fillMaxWidth()
-                .background(Color(35, 35, 35))
-                .padding(horizontal = 10.dp, vertical = 5.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
-                Text("#Title", style = TextStyle(color = Color.White, fontSize = 15.sp , fontWeight = FontWeight.W600))
-                Icon(painter = painterResource(id = R.drawable.schedule), contentDescription = "schedule", modifier = Modifier.size(20.dp), tint = Color.White)
+                .height(1.dp)
+                .background(Color(131, 131, 131))
+        )
+        if (state.status == AlbumDetailStatus.Loading) {
+            for (i in 1..3) {
+                TracksDetailSkeleton()
             }
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(Color(131, 131, 131))
-            )
+        } else if (state.status == AlbumDetailStatus.Success) {
             state.data?.tracks?.items?.map {
-                TracksDetail(songName = it.name, artist = it.artists,duration = it.durationMs,it.uri,appViewModel = appViewModel)
+                TracksDetail(
+                    songName = it.name,
+                    artist = it.artists,
+                    duration = it.durationMs,
+                    it.uri,
+                    appViewModel = appViewModel
+                )
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -234,12 +312,9 @@ fun BuildAlbumDetailContent(appViewModel: AppViewModel, state: AlbumDetailState)
                         .background(Color(131, 131, 131))
                 )
             }
-            Spacer(Modifier.size(20.dp))
-
-
         }
+        Spacer(Modifier.size(20.dp))
     }
-
 }
 
 @SuppressLint("DefaultLocale")
@@ -289,6 +364,60 @@ fun TracksDetail(songName: String, artist: List<ArtistAlbumResponse>,duration: I
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.align(alignment = Alignment.CenterEnd)
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
+fun TracksDetailSkeleton() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .clip(RoundedCornerShape(3.dp))
+            .background(Color(35, 35, 35))
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                Modifier
+                    .padding(vertical = 10.dp, horizontal = 10.dp)
+                    .weight(10f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    Modifier
+                        .size(width = 200.dp, height = 15.dp)
+                        .background(Color.White)
+                )
+                Spacer(Modifier.size(5.dp))
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Icon(Icons.Filled.Person, contentDescription = "Artist", tint = Color.White)
+                    Box(
+                        Modifier
+                            .size(width = 100.dp, height = 12.dp)
+                            .background(Color.White)
+                    )
+                }
+            }
+            Box(Modifier
+                .weight(2f)
+                .padding(end = 10.dp)) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(height = 14.dp)
+                        .background(Color.White)
                 )
             }
 
