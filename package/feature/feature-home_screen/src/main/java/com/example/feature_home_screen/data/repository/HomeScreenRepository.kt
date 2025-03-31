@@ -2,6 +2,7 @@ package com.example.feature_home_screen.data.repository
 
 import com.example.core.data.model.album.albumNewReleases.AlbumsNewReleaseResponse
 import com.example.core.data.model.artist.artistYourTop.ArtistYourTopResponse
+import com.example.core.data.model.search.SearchResponse
 import com.example.core.data.model.track.trackSeveral.TrackSeveralResponse
 import com.example.core.data.model.track.trackYourTopResponse.YourTopTrackResponse
 import com.example.core.data.model.user.UserResponse
@@ -18,4 +19,6 @@ interface HomeScreenRepository {
     suspend fun getYourTopTracks(): Response<YourTopTrackResponse>
 
     suspend fun getYourTopArtists(): Response<ArtistYourTopResponse>
+
+    suspend fun searchItems(q: String) : Response<SearchResponse>
 }

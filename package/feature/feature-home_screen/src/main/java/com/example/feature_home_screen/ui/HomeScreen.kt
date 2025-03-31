@@ -458,7 +458,7 @@ fun AlbumBoxSkeleton() {
 
 @Composable
 fun SongBox(track: TrackEntity,navController: NavController) {
-    Column {
+    Column (Modifier.width(150.dp)){
         Box(
             modifier = Modifier
                 .size(150.dp)
@@ -477,11 +477,15 @@ fun SongBox(track: TrackEntity,navController: NavController) {
         Spacer(Modifier.size(5.dp))
         Text(
             track.name,
-            style = TextStyle(fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.W600)
+            style = TextStyle(fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.W600),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
         Text(
             track.artists[0].name,
             style = TextStyle(fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.W500),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

@@ -97,7 +97,7 @@ class HomeScreenViewModel @Inject constructor(
     private fun getSeveralTrackEvent() {
         _homeScreenState.value = _homeScreenState.value.copy(status = HomeScreenStatus.Loading)
         viewModelScope.launch {
-            getSeveralTrackUseCase.execute().onSuccess {
+            getSeveralTrackUseCase.execute(q = "genre:t-pop").onSuccess {
                 if (it is TrackSeveralEntity) {
                     _homeScreenState.value = _homeScreenState.value.copy(
                         status = HomeScreenStatus.Success,
