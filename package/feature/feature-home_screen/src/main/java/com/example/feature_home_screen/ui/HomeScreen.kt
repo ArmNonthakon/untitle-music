@@ -59,6 +59,8 @@ import com.example.core.presentation.AppViewModel
 import com.example.core.storage.SecureSharedPreferences
 import com.example.feature_home_screen.domain.entity.album.albumNewReleases.AlbumNewReleasesEntity
 import com.example.feature_home_screen.domain.entity.artist.ArtistEntity
+import com.example.feature_home_screen.domain.entity.playlist.PlaylistEntity
+import com.example.feature_home_screen.domain.entity.playlist.PlaylistSeveralEntity
 import com.example.feature_home_screen.domain.entity.track.TrackEntity
 import com.example.feature_home_screen.domain.entity.track.trackSeveral.TrackSeveralEntity
 import com.example.feature_home_screen.domain.entity.user.UserEntity
@@ -82,6 +84,7 @@ fun HomeScreenProvider(
         viewModel.sendIntent(HomeScreenIntent.GetSeveralTracks)
         viewModel.sendIntent(HomeScreenIntent.GetYourTopTracks)
         viewModel.sendIntent(HomeScreenIntent.GetYourTopArtists)
+        viewModel.sendIntent(HomeScreenIntent.GetSeveralPlaylist)
     }
 
     HomeScreen(state, appViewModel, navController)
@@ -213,12 +216,15 @@ fun BuildHomeScreenContent(
     val isTopArtist = remember { mutableStateOf(true) }
     Column(
         modifier = Modifier.verticalScroll(state = rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(35.dp)
     ) {
 
         RecommendAlbum(state, navController)
 
         SongBoxGroup(topic = "For you",state = state, navController = navController)
+
+        PlaylistBoxGroup(topic = "Recommend playlist", state = state, navController = navController)
+
 
         Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
             if(state.status == HomeScreenStatus.Success){
@@ -368,8 +374,49 @@ fun SongBoxGroup(topic: String, state: HomeScreenState,navController: NavControl
             }
         }
     }
-
 }
+@Composable
+fun PlaylistBoxGroup(topic: String, state: HomeScreenState,navController: NavController) {
+    Column {
+        if (state.status == HomeScreenStatus.Success && state.data.playlistSeveral is PlaylistSeveralEntity) {
+            Text(
+                topic,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.W600
+                )
+            )
+            Spacer(Modifier.padding(5.dp))
+            Row(
+                modifier = Modifier.horizontalScroll(
+                    state = rememberScrollState(),
+                )
+            ) {
+                for (i in state.data.playlistSeveral.items) {
+                    i?.let { PlaylistBox(playlist = it, navController = navController) }
+                    Spacer(modifier = Modifier.padding(5.dp))
+                }
+            }
+        } else {
+            Box(Modifier
+                .size(width = 100.dp, height = 18.dp)
+                .background(Color.White))
+            Spacer(Modifier.padding(5.dp))
+            Row(
+                modifier = Modifier.horizontalScroll(
+                    state = rememberScrollState(),
+                )
+            ) {
+                for (i in 1..3) {
+                    PlaylistSkeleton()
+                    Spacer(modifier = Modifier.padding(5.dp))
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun RankingGroup(
@@ -491,6 +538,34 @@ fun SongBox(track: TrackEntity,navController: NavController) {
 }
 
 @Composable
+fun PlaylistBox(playlist: PlaylistEntity, navController: NavController) {
+    Column (Modifier.width(150.dp)){
+        Box(
+            modifier = Modifier
+                .size(150.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(Color.White).clickable {
+                    navController.navigate("Playlist/${playlist.id}")
+                }
+        ) {
+            AsyncImage(
+                model = playlist.images[0].url,
+                contentDescription = "back",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Spacer(Modifier.size(5.dp))
+        Text(
+            playlist.name,
+            style = TextStyle(fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.W600),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
 fun SongBoxSkeleton() {
     Column {
         Box(
@@ -509,6 +584,24 @@ fun SongBoxSkeleton() {
         Box(
             Modifier
                 .size(width = 40.dp, height = 14.dp)
+                .background(Color.White)
+        )
+    }
+}
+
+@Composable
+fun PlaylistSkeleton() {
+    Column {
+        Box(
+            modifier = Modifier
+                .size(150.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(Color.White)
+        )
+        Spacer(Modifier.size(5.dp))
+        Box(
+            Modifier
+                .size(width = 100.dp, height = 16.dp)
                 .background(Color.White)
         )
     }

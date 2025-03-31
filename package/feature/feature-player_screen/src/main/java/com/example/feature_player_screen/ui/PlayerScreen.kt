@@ -115,16 +115,15 @@ fun BuildPlayerScreenTracksPicture(state: AppState) {
         )
         Box(
             Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .background(Color.Black)
+                .clip(RoundedCornerShape(30.dp))
                 .size((heightScreen / 2.25).dp)
-                .align(Alignment.Center)
+                .align(Alignment.Center).padding(10.dp)
         ) {
             AsyncImage(
                 model = state.player?.item?.album?.images?.get(0)?.url,
                 contentDescription = "image",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(20.dp))
             )
         }
     }
@@ -175,7 +174,7 @@ fun BuildPlayerScreenPlayer(viewModel: AppViewModel, state: AppState) {
                 contentDescription = "back",
                 modifier = Modifier
                     .size(37.dp)
-                    .clickable {
+                    .clickable(interactionSource = null, indication = null) {
                         viewModel.sendIntent(AppIntent.PreviousSong)
                     }
             )
@@ -184,7 +183,7 @@ fun BuildPlayerScreenPlayer(viewModel: AppViewModel, state: AppState) {
                 contentDescription = "play",
                 modifier = Modifier
                     .size(39.dp)
-                    .clickable {
+                    .clickable(interactionSource = null, indication = null) {
                         viewModel.sendIntent(AppIntent.ResumePauseSong)
                     }
             )
@@ -193,7 +192,7 @@ fun BuildPlayerScreenPlayer(viewModel: AppViewModel, state: AppState) {
                 contentDescription = "next",
                 modifier = Modifier
                     .size(37.dp)
-                    .clickable {
+                    .clickable(interactionSource = null, indication = null) {
                         viewModel.sendIntent(AppIntent.NextSong)
                     }
             )

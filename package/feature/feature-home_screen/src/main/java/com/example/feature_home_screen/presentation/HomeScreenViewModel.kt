@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.feature_home_screen.domain.entity.album.albumNewReleases.AlbumNewReleasesEntity
 import com.example.feature_home_screen.domain.entity.artist.artistYourTop.ArtistYourTopEntity
+import com.example.feature_home_screen.domain.entity.playlist.PlaylistSeveralEntity
 import com.example.feature_home_screen.domain.entity.track.trackSeveral.TrackSeveralEntity
 import com.example.feature_home_screen.domain.entity.track.trackYourTop.TrackYourTopEntity
 import com.example.feature_home_screen.domain.entity.user.UserEntity
 import com.example.feature_home_screen.domain.usecase.HomeScreenGetAlbumNewReleasesUserCase
+import com.example.feature_home_screen.domain.usecase.HomeScreenGetSeveralPlaylist
 import com.example.feature_home_screen.domain.usecase.HomeScreenGetSeveralTrackUseCase
 import com.example.feature_home_screen.domain.usecase.HomeScreenGetUserUserCase
 import com.example.feature_home_screen.domain.usecase.HomeScreenGetYourTopArtists
@@ -26,7 +28,8 @@ class HomeScreenViewModel @Inject constructor(
     private val getAlbumNewReleasesUserCase: HomeScreenGetAlbumNewReleasesUserCase,
     private val getSeveralTrackUseCase: HomeScreenGetSeveralTrackUseCase,
     private val getYourTopTracks: HomeScreenGetYourTopTracks,
-    private val getYourTopArtists: HomeScreenGetYourTopArtists
+    private val getYourTopArtists: HomeScreenGetYourTopArtists,
+    private val getSeveralPlaylist: HomeScreenGetSeveralPlaylist,
 ) : ViewModel() {
     private val homeScreenIntent = MutableSharedFlow<HomeScreenIntent>()
 
@@ -46,6 +49,7 @@ class HomeScreenViewModel @Inject constructor(
                     HomeScreenIntent.GetSeveralTracks -> getSeveralTrackEvent()
                     HomeScreenIntent.GetYourTopArtists -> getYourTopArtists()
                     HomeScreenIntent.GetYourTopTracks -> getYourTopTracks()
+                    HomeScreenIntent.GetSeveralPlaylist -> getSeveralPlaylistEvent()
                 }
             }
         }
@@ -102,6 +106,30 @@ class HomeScreenViewModel @Inject constructor(
                     _homeScreenState.value = _homeScreenState.value.copy(
                         status = HomeScreenStatus.Success,
                         data = _homeScreenState.value.data.copy(trackSeveral = it)
+                    )
+                } else {
+                    _homeScreenState.value = _homeScreenState.value.copy(
+                        status = HomeScreenStatus.Failed,
+                        message = errorNoDataMessage
+                    )
+                }
+            }.onFailure {
+                _homeScreenState.value = _homeScreenState.value.copy(
+                    status = HomeScreenStatus.Failed,
+                    message = it.message.toString()
+                )
+            }
+        }
+    }
+
+    private fun getSeveralPlaylistEvent() {
+        _homeScreenState.value = _homeScreenState.value.copy(status = HomeScreenStatus.Loading)
+        viewModelScope.launch {
+            getSeveralPlaylist.execute(q = "เพลง").onSuccess {
+                if (it is PlaylistSeveralEntity) {
+                    _homeScreenState.value = _homeScreenState.value.copy(
+                        status = HomeScreenStatus.Success,
+                        data = _homeScreenState.value.data.copy(playlistSeveral = it)
                     )
                 } else {
                     _homeScreenState.value = _homeScreenState.value.copy(

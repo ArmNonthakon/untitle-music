@@ -4,6 +4,7 @@ sealed interface HomeScreenIntent{
     data object GetUserDetail : HomeScreenIntent
     data object GetAlbumNewReleases : HomeScreenIntent
     data object GetSeveralTracks : HomeScreenIntent
+    data object GetSeveralPlaylist : HomeScreenIntent
     data object GetYourTopTracks : HomeScreenIntent
     data object GetYourTopArtists : HomeScreenIntent
 }
