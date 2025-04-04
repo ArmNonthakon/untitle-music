@@ -52,6 +52,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.android)
     implementation(libs.androidx.lifecycle.viewmodel.android)
     debugImplementation(libs.androidx.ui.tooling)
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+    testImplementation("app.cash.turbine:turbine:1.0.0")
 
 
     implementation(libs.retrofit2.retrofit)

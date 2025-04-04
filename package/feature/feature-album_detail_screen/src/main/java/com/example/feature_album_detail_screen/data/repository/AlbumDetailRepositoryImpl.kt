@@ -9,7 +9,7 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class AlbumDetailRepositoryImpl @Inject constructor(private val service: ApiService) : AlbumDetailRepository{
-    override suspend fun getAlbum(albumId : String): Call<GetAlbumResponse> {
+    override suspend fun getAlbum(albumId : String): Response<GetAlbumResponse> {
         return service.getAlbum(albumId);
     }
 

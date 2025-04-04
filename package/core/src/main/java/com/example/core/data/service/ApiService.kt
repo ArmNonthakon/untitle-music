@@ -48,7 +48,7 @@ interface ApiService {
     suspend fun getPlayBackState(): Response<PlayBackStateResponse>
 
     @GET("v1/albums/{id}")
-    fun getAlbum(@Path("id") albumId: String?): Call<GetAlbumResponse>
+    suspend fun getAlbum(@Path("id") albumId: String?): Response<GetAlbumResponse>
 
     @GET("v1/artists/{id}")
     suspend fun getArtist(
